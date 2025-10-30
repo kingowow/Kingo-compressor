@@ -4,18 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>حساب کاربری | Kingo Compressor</title>
-
-  <!-- استایل اصلی (همان فایل) -->
   <link rel="stylesheet" href="assets/css/styles.css" />
-
-  <!-- Remix Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" />
 </head>
 <body>
   <div class="login" style="min-height: 100vh;">
     <img src="assets/img/login-bg.png" alt="bg" class="login__bg" />
 
-    <!-- بخش حساب -->
     <div class="login__form" id="account-section" style="max-width: 420px; margin: 2rem auto; display: none;">
       <h1 class="login__title">حساب کاربری</h1>
 
@@ -31,13 +26,11 @@
       </div>
     </div>
 
-    <!-- اگر لاگین نبود -->
     <div id="not-logged-in" style="text-align: center; padding: 3rem; color: white; display: none;">
       <h2>لطفاً ابتدا وارد شوید</h2>
       <a href="/Kingo-compressor/" class="login__button" style="display: inline-block; margin-top: 1rem;">ورود</a>
     </div>
 
-    <!-- لودینگ -->
     <div id="loading" style="text-align: center; padding: 3rem; color: white;">
       <p>در حال بررسی وضعیت...</p>
     </div>
@@ -60,14 +53,22 @@
       accountSection.style.display = "none";
       notLoggedIn.style.display = "none";
 
-      const { data } = await supabase.auth.getUser();
+      const { data, error } = await supabase.auth.getUser();
+      
+      if (error) {
+        console.error("خطا در getUser:", error);
+        notLoggedIn.style.display = "block";
+        loading.style.display = "none";
+        return;
+      }
+
       const user = data?.user;
 
       loading.style.display = "none";
 
       if (user) {
         accountSection.style.display = "block";
-        document.getElementById("user-email").textContent = user.email;
+        document.getElementById("user-email").textContent = user.email || "نامشخص";
         document.getElementById("user-id").textContent = user.id;
         document.getElementById("login-time").textContent = new Date().toLocaleString("fa-IR");
       } else {
@@ -75,7 +76,6 @@
       }
     }
 
-    // خروج
     document.getElementById("logout-btn").addEventListener("click", async () => {
       await supabase.auth.signOut();
       window.location.href = "/Kingo-compressor/";
