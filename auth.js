@@ -6,6 +6,7 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// فقط بعد از لود کامل DOM
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
@@ -13,15 +14,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const showRegister = document.getElementById("show-register");
   const showLogin = document.getElementById("show-login");
 
-  if (!loginForm || !registerForm || !loading) return;
+  // چک کن همه المنت‌ها وجود دارن
+  if (!loginForm || !registerForm || !loading || !showRegister || !showLogin) {
+    console.error("یکی از المنت‌ها پیدا نشد! چک کن idها درست باشن.");
+    return;
+  }
 
-  // سوئیچ بین فرم‌ها
+  // سوئیچ به فرم ثبت‌نام
   showRegister.addEventListener("click", (e) => {
     e.preventDefault();
     loginForm.style.display = "none";
     registerForm.style.display = "block";
   });
 
+  // سوئیچ به فرم ورود
   showLogin.addEventListener("click", (e) => {
     e.preventDefault();
     registerForm.style.display = "none";
@@ -96,10 +102,11 @@ document.addEventListener("DOMContentLoaded", () => {
       registerForm.style.display = "block";
       alert("ثبت‌نام ناموفق: " + error.message);
     } else {
-      alert("ثبت‌نام موفق! ایمیل تأیید ارسال شد. لطفاً ایمیل خود را چک کنید.");
+      alert("ثبت‌نام موفق! (ایمیل تأیید لازم نیست)");
       window.location.href = "/Kingo-compressor/account";
     }
   });
 
+  // اجرای اولیه
   checkUser();
 });
