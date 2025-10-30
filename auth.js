@@ -5,34 +5,34 @@ const SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltamdpZHJ0ZGNyd2pjbHdlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MTQxMzQsImV4cCI6MjA3NzM5MDEzNH0.Et8PfbGMB1E2-tyrmd1do53D3BVvS8foa3j9CE596tE";
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const loginForm = document.querySelector(".login__form");
-const successDiv = document.querySelector(".login__success");
+const loginForm = document.getElementById("login-form");
+const successDiv = document.getElementById("login-success");
 const userEmailText = document.getElementById("user-email");
 const logoutBtn = document.getElementById("logout-btn");
 
-// بررسی وضعیت ورود فعلی
+// ✅ تابع بررسی وضعیت کاربر
 async function checkUser() {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
+  const user = data.user;
 
   if (user) {
-    // کاربر وارد شده
+    console.log("✅ Logged in:", user.email);
     loginForm.style.display = "none";
     successDiv.style.display = "block";
     userEmailText.textContent = user.email;
   } else {
-    // کاربر وارد نشده
+    console.log("❌ Not logged in");
     loginForm.style.display = "block";
     successDiv.style.display = "none";
   }
 }
 
-// ورود با ایمیل و پسورد
+// ✅ ورود کاربر
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const email = document.querySelector("#email").value;
-  const password = document.querySelector("#password").value;
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -42,17 +42,17 @@ loginForm.addEventListener("submit", async (e) => {
   if (error) {
     alert("❌ Login failed: " + error.message);
   } else {
-    alert("✅ Login successful!");
-    checkUser();
+    alert("✅ Logged in successfully!");
+    await checkUser();
   }
 });
 
-// خروج از حساب
+// ✅ خروج
 logoutBtn.addEventListener("click", async () => {
   await supabase.auth.signOut();
   alert("Logged out!");
-  checkUser();
+  await checkUser();
 });
 
-// بررسی وضعیت هنگام بارگذاری صفحه
+// اجرای اولیه
 checkUser();
