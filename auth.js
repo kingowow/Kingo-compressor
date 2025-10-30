@@ -6,46 +6,30 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// فقط بعد از لود کامل DOM
 document.addEventListener("DOMContentLoaded", () => {
    const loginForm = document.getElementById("login-form");
-   const successDiv = document.getElementById("login-success");
-   const userEmailEl = document.getElementById("user-email");
-   const logoutBtn = document.getElementById("logout-btn");
    const loading = document.getElementById("loading");
 
-   // چک کردن وجود المنت‌ها
-   if (!loginForm || !successDiv || !userEmailEl || !logoutBtn || !loading) {
-      console.error("یکی از المنت‌های DOM پیدا نشد!");
+   if (!loginForm || !loading) {
+      console.error("المنت‌های ضروری پیدا نشدند!");
       return;
    }
 
-   // تابع بروزرسانی رابط کاربری
-   async function updateUI() {
-      // ابتدا همه چیز مخفی + لودینگ
+   // بررسی وضعیت کاربر (اگر قبلاً لاگین کرده بود)
+   async function checkUser() {
       loading.style.display = "block";
       loginForm.style.display = "none";
-      successDiv.style.display = "none";
 
-      try {
-         const { data, error } = await supabase.auth.get
-User();
-         const user = data?.user;
+      const { data } = await supabase.auth.getUser();
+      const user = data?.user;
 
-         loading.style.display = "none";
+      loading.style.display = "none";
 
-         if (user && user.email) {
-            console.log("کاربر وارد شده:", user.email);
-            successDiv.style.display = "block";
-            userEmailEl.textContent = user.email;
-         } else {
-            console.log("کاربر وارد نشده");
-            loginForm.style.display = "block";
-         }
-      } catch (err) {
-         loading.style.display = "none";
+      if (user) {
+         // مستقیم به صفحه حساب
+         window.location.href = "/Kingo-compressor/account";
+      } else {
          loginForm.style.display = "block";
-         console.error("خطا:", err);
       }
    }
 
@@ -71,21 +55,11 @@ User();
          loginForm.style.display = "block";
          alert("ورود ناموفق: " + error.message);
       } else {
-         alert("با موفقیت وارد شدید!");
-         await updateUI();
+         // هدایت به صفحه حساب
+         window.location.href = "/Kingo-compressor/account";
       }
    });
 
-   // خروج
-   logoutBtn.addEventListener("click", async () => {
-      loading.style.display = "block";
-      successDiv.style.display = "none";
-
-      await supabase.auth.signOut();
-      alert("با موفقیت خارج شدید!");
-      await updateUI();
-   });
-
    // اجرای اولیه
-   updateUI();
+   checkUser();
 });
