@@ -1,74 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Remix Icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css"
-      crossorigin=""
-    />
+   <!-- REMIXICONS -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" crossorigin="">
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="assets/css/styles.css" />
+   <!-- CSS اصلی (بدون تغییر) -->
+   <link rel="stylesheet" href="assets/css/styles.css">
 
-    <title>Login form</title>
-  </head>
-  <body>
-    <div class="login">
-      <img src="assets/img/login-bg.png" alt="image" class="login__bg" />
+   <title>Login form - Bedimcode</title>
+</head>
+<body>
+   <div class="login">
+      <img src="assets/img/login-bg.png" alt="image" class="login__bg">
 
-      <!-- فرم ورود: ابتدا مخفی (جلوگیری از فلش) -->
+      <!-- فرم ورود: id اضافه شد + input ها id دارند -->
       <form action="" class="login__form" id="login-form" style="display: none;">
-        <h1 class="login__title">Login</h1>
+         <h1 class="login__title">Login</h1>
 
-        <div class="login__inputs">
-          <div class="login__box">
-            <input
-              type="email"
-              id="email"
-              placeholder="Email ID"
-              required
-              class="login__input"
-            />
-            <i class="ri-mail-fill"></i>
-          </div>
+         <div class="login__inputs">
+            <div class="login__box">
+               <input type="email" id="email" placeholder="Email ID" required class="login__input">
+               <i class="ri-mail-fill"></i>
+            </div>
 
-          <div class="login__box">
-            <input
-              type="password"
-              id="password"
-              placeholder="Password"
-              required
-              class="login__input"
-            />
-            <i class="ri-lock-2-fill"></i>
-          </div>
-        </div>
+            <div class="login__box">
+               <input type="password" id="password" placeholder="Password" required class="login__input">
+               <i class="ri-lock-2-fill"></i>
+            </div>
+         </div>
 
-        <button type="submit" class="login__button">Login</button>
+         <div class="login__check">
+            <div class="login__check-box">
+               <input type="checkbox" class="login__check-input" id="user-check">
+               <label for="user-check" class="login__check-label">Remember me</label>
+            </div>
 
-        <div class="login__register">
-          Don't have an account? <a href="#">Register</a>
-        </div>
+            <a href="#" class="login__forgot">Forgot Password?</a>
+         </div>
+
+         <button type="submit" class="login__button">Login</button>
+
+         <div class="login__register">
+            Don't have an account? <a href="#">Register</a>
+         </div>
       </form>
 
-      <!-- بخش خوش‌آمد: مخفی -->
-      <div class="login__success" id="login-success" style="display: none;">
-        <h2 class="login__title">Welcome!</h2>
-        <p class="login__text" id="user-email"></p>
-        <button id="logout-btn" class="login__button">Logout</button>
+      <!-- بخش خوش‌آمد: بعد از لاگین نمایش داده می‌شود -->
+      <div class="login__success" id="login-success" style="display: none; text-align: center; padding: 2rem;">
+         <h2 class="login__title">خوش آمدید!</h2>
+         <p class="login__text" id="user-email" style="font-size: 1.1rem; margin: 1rem 0; color: #fff;"></p>
+         <button id="logout-btn" class="login__button">خروج</button>
       </div>
 
-      <!-- لودینگ (اختیاری اما حرفه‌ای) -->
-      <div class="login__loading" id="loading" style="text-align: center; padding: 2rem;">
-        <p>Loading...</p>
+      <!-- لودینگ: تا وقتی وضعیت مشخص نشده -->
+      <div id="loading" style="text-align: center; padding: 2rem; color: #fff; display: block;">
+         <p>در حال بارگذاری...</p>
       </div>
-    </div>
+   </div>
 
-    <!-- اسکریپت در انتهای body -->
-    <script type="module" src="auth.js"></script>
-  </body>
+   <!-- اسکریپت در انتها -->
+   <script type="module" src="auth.js"></script>
+</body>
 </html>
