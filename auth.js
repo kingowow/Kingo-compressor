@@ -10,9 +10,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const loading = document.getElementById("loading");
 
-  if (!loginForm || !loading) return;
+  if (!loginForm || !loading) {
+    console.error("المنت‌های ضروری پیدا نشدند!");
+    return;
+  }
 
-  // چک کاربر (اگر قبلاً لاگین کرده بود)
   async function checkUser() {
     loading.style.display = "block";
     loginForm.style.display = "none";
@@ -29,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ورود
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -51,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
       loginForm.style.display = "block";
       alert("ورود ناموفق: " + error.message);
     } else {
-      // مستقیم به صفحه حساب
       window.location.href = "/Kingo-compressor/account";
     }
   });
