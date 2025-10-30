@@ -11,31 +11,45 @@
    <div class="login">
       <img src="assets/img/login-bg.png" alt="image" class="login__bg">
 
+      <!-- فرم ورود -->
       <form action="" class="login__form" id="login-form" style="display: none;">
-         <h1 class="login__title">Login</h1>
+         <h1 class="login__title">ورود</h1>
          <div class="login__inputs">
             <div class="login__box">
-               <input type="email" id="email" placeholder="Email ID" required class="login__input">
+               <input type="email" id="login-email" placeholder="ایمیل" required class="login__input">
                <i class="ri-mail-fill"></i>
             </div>
             <div class="login__box">
-               <input type="password" id="password" placeholder="Password" required class="login__input">
+               <input type="password" id="login-password" placeholder="رمز عبور" required class="login__input">
                <i class="ri-lock-2-fill"></i>
             </div>
          </div>
-         <div class="login__check">
-            <div class="login__check-box">
-               <input type="checkbox" class="login__check-input" id="user-check">
-               <label for="user-check" class="login__check-label">Remember me</label>
-            </div>
-            <a href="#" class="login__forgot">Forgot Password?</a>
-         </div>
-         <button type="submit" class="login__button">Login</button>
+         <button type="submit" class="login__button">ورود</button>
          <div class="login__register">
-            Don't have an account? <a href="#">Register</a>
+            حساب ندارید؟ <a href="#" id="show-register">ثبت‌نام کنید</a>
          </div>
       </form>
 
+      <!-- فرم ثبت‌نام -->
+      <form action="" class="login__form" id="register-form" style="display: none;">
+         <h1 class="login__title">ثبت‌نام</h1>
+         <div class="login__inputs">
+            <div class="login__box">
+               <input type="email" id="register-email" placeholder="ایمیل" required class="login__input">
+               <i class="ri-mail-fill"></i>
+            </div>
+            <div class="login__box">
+               <input type="password" id="register-password" placeholder="رمز عبور (حداقل 6 کاراکتر)" required class="login__input">
+               <i class="ri-lock-2-fill"></i>
+            </div>
+         </div>
+         <button type="submit" class="login__button">ثبت‌نام</button>
+         <div class="login__register">
+            حساب دارید؟ <a href="#" id="show-login">وارد شوید</a>
+         </div>
+      </form>
+
+      <!-- لودینگ -->
       <div id="loading" style="text-align: center; padding: 2rem; color: #fff; display: block;">
          <p>در حال بارگذاری...</p>
       </div>
