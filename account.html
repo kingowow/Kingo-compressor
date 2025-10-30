@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حساب کاربری | Kingo Compressor</title>
+
+  <!-- استایل اصلی (همان فایل) -->
+  <link rel="stylesheet" href="assets/css/styles.css" />
+
+  <!-- Remix Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" />
+</head>
+<body>
+  <div class="login" style="min-height: 100vh;">
+    <img src="assets/img/login-bg.png" alt="bg" class="login__bg" />
+
+    <!-- بخش حساب -->
+    <div class="login__form" id="account-section" style="max-width: 420px; margin: 2rem auto; display: none;">
+      <h1 class="login__title">حساب کاربری</h1>
+
+      <div style="background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 12px; margin: 1rem 0; color: white; backdrop-filter: blur(10px);">
+        <p><strong>ایمیل:</strong> <span id="user-email">-</span></p>
+        <p><strong>شناسه:</strong> <span id="user-id">-</span></p>
+        <p><strong>ورود در:</strong> <span id="login-time">-</span></p>
+      </div>
+
+      <button id="logout-btn" class="login__button">خروج از حساب</button>
+      <div style="margin-top: 1rem; text-align: center;">
+        <a href="/Kingo-compressor/" style="color: #ccc; font-size: 0.9rem;">برگشت به صفحه اصلی</a>
+      </div>
+    </div>
+
+    <!-- اگر لاگین نبود -->
+    <div id="not-logged-in" style="text-align: center; padding: 3rem; color: white; display: none;">
+      <h2>لطفاً ابتدا وارد شوید</h2>
+      <a href="/Kingo-compressor/" class="login__button" style="display: inline-block; margin-top: 1rem;">ورود</a>
+    </div>
+
+    <!-- لودینگ -->
+    <div id="loading" style="text-align: center; padding: 3rem; color: white;">
+      <p>در حال بررسی وضعیت...</p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabase = createClient(
+      "https://ymjgidrtdcrwjclwezun.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltamdpZHJ0ZGNyd2pjbHdlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MTQxMzQsImV4cCI6MjA3NzM5MDEzNH0.Et8PfbGMB1E2-tyrmd1do53D3BVvS8foa3j9CE596tE"
+    );
+
+    const accountSection = document.getElementById("account-section");
+    const notLoggedIn = document.getElementById("not-logged-in");
+    const loading = document.getElementById("loading");
+
+    async function checkAuth() {
+      loading.style.display = "block";
+      accountSection.style.display = "none";
+      notLoggedIn.style.display = "none";
+
+      const { data } = await supabase.auth.getUser();
+      const user = data?.user;
+
+      loading.style.display = "none";
+
+      if (user) {
+        accountSection.style.display = "block";
+        document.getElementById("user-email").textContent = user.email;
+        document.getElementById("user-id").textContent = user.id;
+        document.getElementById("login-time").textContent = new Date().toLocaleString("fa-IR");
+      } else {
+        notLoggedIn.style.display = "block";
+      }
+    }
+
+    // خروج
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      window.location.href = "/Kingo-compressor/";
+    });
+
+    checkAuth();
+  </script>
+</body>
+</html>
