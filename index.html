@@ -1,61 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-   <!--=============== REMIXICONS ===============-->
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" crossorigin="">
+    <!--=============== REMIXICONS ===============-->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css"
+      crossorigin=""
+    />
 
-   <!--=============== CSS ===============-->
-   <link rel="stylesheet" href="assets/css/styles.css">
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="assets/css/styles.css" />
 
-   <title>Login</title>
-</head>
-<body>
-   <div class="login">
-      <img src="assets/img/login-bg.png" alt="image" class="login__bg">
+    <title>Login form</title>
+  </head>
+  <body>
+    <div class="login">
+      <img src="assets/img/login-bg.png" alt="image" class="login__bg" />
 
-      <!-- فرم ورود -->
-      <form id="login-form" class="login__form">
-         <h1 class="login__title">Login</h1>
+      <!-- ✅ فرم ورود -->
+      <form action="" class="login__form" id="login-form">
+        <h1 class="login__title">Login</h1>
 
-         <div class="login__inputs">
-            <div class="login__box">
-               <input id="email" type="email" placeholder="Email ID" required class="login__input">
-               <i class="ri-mail-fill"></i>
-            </div>
+        <div class="login__inputs">
+          <div class="login__box">
+            <input
+              type="email"
+              id="email"
+              placeholder="Email ID"
+              required
+              class="login__input"
+            />
+            <i class="ri-mail-fill"></i>
+          </div>
 
-            <div class="login__box">
-               <input id="password" type="password" placeholder="Password" required class="login__input">
-               <i class="ri-lock-2-fill"></i>
-            </div>
-         </div>
+          <div class="login__box">
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              required
+              class="login__input"
+            />
+            <i class="ri-lock-2-fill"></i>
+          </div>
+        </div>
 
-         <div class="login__check">
-            <div class="login__check-box">
-               <input type="checkbox" class="login__check-input" id="user-check">
-               <label for="user-check" class="login__check-label">Remember me</label>
-            </div>
+        <button type="submit" class="login__button">Login</button>
 
-            <a href="#" class="login__forgot">Forgot Password?</a>
-         </div>
-
-         <button type="submit" class="login__button">Login</button>
-
-         <div class="login__register">
-            Don't have an account? <a href="#">Register</a>
-         </div>
+        <div class="login__register">
+          Don't have an account? <a href="#">Register</a>
+        </div>
       </form>
 
-      <!-- پیام موفقیت ورود -->
-      <div class="login__success" style="display: none;">
-         <h2 class="login__title">Welcome!</h2>
-         <p class="login__text" id="user-email"></p>
-         <button id="logout-btn" class="login__button">Logout</button>
+      <!-- ✅ بخش خوش‌آمد -->
+      <div class="login__success" id="login-success" style="display: none">
+        <h2 class="login__title">Welcome!</h2>
+        <p class="login__text" id="user-email"></p>
+        <button id="logout-btn" class="login__button">Logout</button>
       </div>
-   </div>
+    </div>
 
-   <script type="module" src="auth.js"></script>
-</body>
+    <script type="module" src="auth.js"></script>
+  </body>
 </html>
