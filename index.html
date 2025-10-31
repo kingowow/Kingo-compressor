@@ -88,14 +88,15 @@
          <p>در حال ورود...</p>
       </div>
 
-      <!-- صفحه موفقیت -->
-      <div id="success">
-         <h2>✅ ورود با موفقیت انجام شد!</h2>
-         <p>می‌توانید به برنامه بازگردید یا جزئیات حساب خود را ببینید:</p>
-         <a href="#" id="back-to-app" class="success-btn">برگشت به اپلیکیشن</a>
-         <a href="https://kingowow.github.io/Kingo-compressor/account" class="success-btn">جزئیات حساب</a>
-         <a href="#" id="change-account" class="success-btn">تغییر حساب</a>
-      </div>
+      <!-- پیام موفقیت -->
+<div id="login-success" style="display:none; text-align:center; padding:2rem; color:#fff;">
+  <h2>ورود با موفقیت انجام شد ✅</h2>
+  <p>اگر اپلیکیشن باز نشد، می‌توانید:</p>
+  <button id="open-app" class="login__button" style="margin-top:1rem;">بازگشت به اپلیکیشن</button>
+  <br><br>
+  <a href="#" id="account-details" style="color:#fff; text-decoration:underline;">جزئیات اکانت</a> |
+  <a href="#" id="change-account" style="color:#fff; text-decoration:underline;">تغییر حساب</a>
+</div>
    </div>
 
    <script type="module" src="auth.js"></script>
@@ -128,3 +129,4 @@
    </script>
 </body>
 </html>
+
