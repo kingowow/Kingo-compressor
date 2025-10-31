@@ -62,10 +62,10 @@ document.addEventListener("DOMContentLoaded", () => {
       loginForm.style.display = "block";
     };
 
-    // ⬇️ تغییر: تأخیر را به 1500 میلی‌ثانیه افزایش دادیم تا پیام کاملاً نمایش داده شود
+    // redirect با تأخیر 1 ثانیه (برای نمایش پیام)
     setTimeout(() => {
       redirectToApp(email);
-    }, 1500); // 1.5 ثانیه
+    }, 1000);
   }
 
   async function checkUser() {
@@ -77,7 +77,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const user = data?.user;
 
     if (user) {
-      showSuccess(user.email); // ✅ اول پیام می‌آید، بعد redirect
+      // فقط نمایش پیام موفقیت — بدون redirect فوری
+      showSuccess(user.email);
     } else {
       loading.style.display = "none";
       loginForm.style.display = "block";
@@ -108,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
       loginForm.style.display = "block";
       alert("ورود ناموفق: " + error.message);
     } else {
-      showSuccess(data.user.email); // ✅ اول پیام، بعد redirect
+      showSuccess(data.user.email);
     }
   });
 
@@ -137,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
       registerForm.style.display = "block";
       alert("ثبت‌نام ناموفق: " + error.message);
     } else {
-      showSuccess(email); // ✅ اول پیام، بعد redirect
+      showSuccess(email);
     }
   });
 
