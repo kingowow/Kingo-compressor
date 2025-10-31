@@ -55,25 +55,19 @@
 
       const { data, error } = await supabase.auth.getUser();
       
-      if (error) {
-        console.error("خطا در getUser:", error);
+      if (error || !data?.user) {
         notLoggedIn.style.display = "block";
         loading.style.display = "none";
         return;
       }
 
-      const user = data?.user;
+      const user = data.user;
 
       loading.style.display = "none";
-
-      if (user) {
-        accountSection.style.display = "block";
-        document.getElementById("user-email").textContent = user.email || "نامشخص";
-        document.getElementById("user-id").textContent = user.id;
-        document.getElementById("login-time").textContent = new Date().toLocaleString("fa-IR");
-      } else {
-        notLoggedIn.style.display = "block";
-      }
+      accountSection.style.display = "block";
+      document.getElementById("user-email").textContent = user.email || "نامشخص";
+      document.getElementById("user-id").textContent = user.id;
+      document.getElementById("login-time").textContent = new Date().toLocaleString("fa-IR");
     }
 
     document.getElementById("logout-btn").addEventListener("click", async () => {
