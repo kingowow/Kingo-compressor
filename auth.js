@@ -6,7 +6,12 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// فقط بعد از لود کامل DOM
+// تابع ارسال به اپلیکیشن
+function redirectToApp(email) {
+  const appUrl = `kingo://auth/callback?email=${encodeURIComponent(email)}`;
+  window.location.href = appUrl;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
@@ -14,27 +19,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const showRegister = document.getElementById("show-register");
   const showLogin = document.getElementById("show-login");
 
-  // چک کن همه المنت‌ها وجود دارن
   if (!loginForm || !registerForm || !loading || !showRegister || !showLogin) {
-    console.error("یکی از المنت‌ها پیدا نشد! چک کن idها درست باشن.");
+    console.error("یکی از المنت‌ها پیدا نشد!");
     return;
   }
 
-  // سوئیچ به فرم ثبت‌نام
   showRegister.addEventListener("click", (e) => {
     e.preventDefault();
     loginForm.style.display = "none";
     registerForm.style.display = "block";
   });
 
-  // سوئیچ به فرم ورود
   showLogin.addEventListener("click", (e) => {
     e.preventDefault();
     registerForm.style.display = "none";
     loginForm.style.display = "block";
   });
 
-  // بررسی وضعیت کاربر
   async function checkUser() {
     loading.style.display = "block";
     loginForm.style.display = "none";
@@ -46,7 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
     loading.style.display = "none";
 
     if (user) {
-      window.location.href = "/Kingo-compressor/account";
+      // اگر کاربر لاگین کرده → به اپ بفرست
+      redirectToApp(user.email);
     } else {
       loginForm.style.display = "block";
     }
@@ -66,14 +68,15 @@ document.addEventListener("DOMContentLoaded", () => {
     loading.style.display = "block";
     loginForm.style.display = "none";
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       loading.style.display = "none";
       loginForm.style.display = "block";
       alert("ورود ناموفق: " + error.message);
     } else {
-      window.location.href = "/Kingo-compressor/account";
+      // لاگین موفق → به اپ بفرست
+      redirectToApp(data.user.email);
     }
   });
 
@@ -95,15 +98,15 @@ document.addEventListener("DOMContentLoaded", () => {
     loading.style.display = "block";
     registerForm.style.display = "none";
 
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
       loading.style.display = "none";
       registerForm.style.display = "block";
       alert("ثبت‌نام ناموفق: " + error.message);
     } else {
-      alert("ثبت‌نام موفق! (ایمیل تأیید لازم نیست)");
-      window.location.href = "/Kingo-compressor/account";
+      // ثبت‌نام موفق → به اپ بفرست
+      redirectToApp(email);
     }
   });
 
