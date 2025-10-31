@@ -7,111 +7,140 @@ const SUPABASE_KEY =
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// نمایش بخش مورد نظر و مخفی کردن بقیه
-function showSection(sectionId) {
-  document.getElementById("login-form").style.display = "none";
-  document.getElementById("register-form").style.display = "none";
-  document.getElementById("loading").style.display = "none";
-  document.getElementById("login-success").style.display = "none";
-
-  if (sectionId) {
-    document.getElementById(sectionId).style.display = "block";
-  }
+// تابع ارسال به اپلیکیشن
+function redirectToApp(email) {
+  const appUrl = `kingo://auth/callback?email=${encodeURIComponent(email)}`;
+  window.location.href = appUrl;
 }
 
-// باز کردن اپ (با تأخیر برای نمایش UI)
-function tryOpenApp(email) {
-  setTimeout(() => {
-    const appUrl = `kingo://auth/callback?email=${encodeURIComponent(email)}`;
-    window.location.href = appUrl;
-  }, 2000); // 2 ثانیه فرصت برای دیدن پیام
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
+  const loading = document.getElementById("loading");
+  const loginSuccess = document.getElementById("login-success");
   const showRegister = document.getElementById("show-register");
   const showLogin = document.getElementById("show-login");
 
-  // نمایش فرم ورود در ابتدا
-  showSection("login-form");
+  if (!loginForm || !registerForm || !loading || !loginSuccess || !showRegister || !showLogin) {
+    console.error("یکی از المنت‌ها پیدا نشد!");
+    return;
+  }
 
-  showRegister?.addEventListener("click", (e) => {
+  showRegister.addEventListener("click", (e) => {
     e.preventDefault();
-    showSection("register-form");
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
   });
 
-  showLogin?.addEventListener("click", (e) => {
+  showLogin.addEventListener("click", (e) => {
     e.preventDefault();
-    showSection("login-form");
+    registerForm.style.display = "block";
+    loginForm.style.display = "none";
   });
 
-  // --- ورود ---
-  loginForm?.addEventListener("submit", async (e) => {
+  async function showSuccess(email) {
+    // مخفی کردن همه چیز
+    loginForm.style.display = "none";
+    registerForm.style.display = "none";
+    loading.style.display = "none";
+    loginSuccess.style.display = "block";
+
+    // تنظیم رویدادها
+    document.getElementById("open-app").onclick = () => {
+      redirectToApp(email);
+    };
+
+    document.getElementById("account-details").onclick = (e) => {
+      e.preventDefault();
+      alert(`📧 ایمیل شما: ${email}`);
+    };
+
+    document.getElementById("change-account").onclick = async (e) => {
+      e.preventDefault();
+      await supabase.auth.signOut();
+      loginSuccess.style.display = "none";
+      loginForm.style.display = "block";
+    };
+
+    // ⬇️ تغییر: تأخیر را به 1500 میلی‌ثانیه افزایش دادیم تا پیام کاملاً نمایش داده شود
+    setTimeout(() => {
+      redirectToApp(email);
+    }, 1500); // 1.5 ثانیه
+  }
+
+  async function checkUser() {
+    loading.style.display = "block";
+    loginForm.style.display = "none";
+    registerForm.style.display = "none";
+
+    const { data } = await supabase.auth.getUser();
+    const user = data?.user;
+
+    if (user) {
+      showSuccess(user.email); // ✅ اول پیام می‌آید، بعد redirect
+    } else {
+      loading.style.display = "none";
+      loginForm.style.display = "block";
+    }
+  }
+
+  // ورود
+  loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = document.getElementById("login-email")?.value.trim();
-    const password = document.getElementById("login-password")?.value.trim();
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value.trim();
 
     if (!email || !password) {
       alert("لطفاً ایمیل و رمز عبور را وارد کنید.");
       return;
     }
 
-    showSection("loading");
+    loading.style.display = "block";
+    loginForm.style.display = "none";
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
+      loading.style.display = "none";
+      loginForm.style.display = "block";
       alert("ورود ناموفق: " + error.message);
-      showSection("login-form");
     } else {
-      showSection("login-success");
-      setupSuccessActions(data.user.email);
-      tryOpenApp(data.user.email);
+      showSuccess(data.user.email); // ✅ اول پیام، بعد redirect
     }
   });
 
-  // --- ثبت‌نام ---
-  registerForm?.addEventListener("submit", async (e) => {
+  // ثبت‌نام
+  registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = document.getElementById("register-email")?.value.trim();
-    const password = document.getElementById("register-password")?.value.trim();
+    const email = document.getElementById("register-email").value.trim();
+    const password = document.getElementById("register-password").value.trim();
 
-    if (!email || !password || password.length < 6) {
-      alert("لطفاً ایمیل و رمز عبور (حداقل 6 کاراکتر) را وارد کنید.");
+    if (!email || !password) {
+      alert("لطفاً ایمیل و رمز عبور را وارد کنید.");
+      return;
+    }
+    if (password.length < 6) {
+      alert("رمز عبور باید حداقل 6 کاراکتر باشد.");
       return;
     }
 
-    showSection("loading");
+    loading.style.display = "block";
+    registerForm.style.display = "none";
 
     const { data, error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
+      loading.style.display = "none";
+      registerForm.style.display = "block";
       alert("ثبت‌نام ناموفق: " + error.message);
-      showSection("register-form");
     } else {
-      showSection("login-success");
-      setupSuccessActions(email);
-      tryOpenApp(email);
+      showSuccess(email); // ✅ اول پیام، بعد redirect
     }
   });
 
-  // تنظیم دکمه‌های صفحه موفقیت
-  function setupSuccessActions(email) {
-    document.getElementById("open-app")?.addEventListener("click", () => {
-      const appUrl = `kingo://auth/callback?email=${encodeURIComponent(email)}`;
-      window.location.href = appUrl;
-    });
-
-    document.getElementById("account-details")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      alert(`📧 ایمیل شما: ${email}`);
-    });
-
-    document.getElementById("change-account")?.addEventListener("click", async (e) => {
-      e.preventDefault();
-      await supabase.auth.signOut();
-      showSection("login-form");
-    });
-  }
+  // اجرای اولیه
+  checkUser();
 });
