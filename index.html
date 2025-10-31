@@ -7,15 +7,14 @@
    <link rel="stylesheet" href="assets/css/styles.css">
    <title>Login | Kingo Compressor</title>
    <style>
-      /* --- استایل‌های اضافه برای لودینگ و موفقیت --- */
-      #loading, #success {
+      #loading, #login-success {
          text-align: center;
          color: #fff;
          padding: 2rem;
          display: none;
       }
       .loader {
-         border: 5px solid rgba(255, 255, 255, 0.2);
+         border: 5px solid rgba(255,255,255,0.2);
          border-top: 5px solid #fff;
          border-radius: 50%;
          width: 60px;
@@ -37,9 +36,13 @@
          text-decoration: none;
          font-weight: 500;
       }
+      #login-success a {
+         color: #fff;
+         text-decoration: underline;
+         margin: 0 8px;
+      }
    </style>
 </head>
-
 <body>
    <div class="login">
       <img src="assets/img/login-bg.png" alt="image" class="login__bg">
@@ -82,51 +85,25 @@
          </div>
       </form>
 
-      <!-- صفحه لودینگ -->
+      <!-- لودینگ -->
       <div id="loading">
          <div class="loader"></div>
          <p>در حال ورود...</p>
       </div>
 
       <!-- پیام موفقیت -->
-<div id="login-success" style="display:none; text-align:center; padding:2rem; color:#fff;">
-  <h2>ورود با موفقیت انجام شد ✅</h2>
-  <p>اگر اپلیکیشن باز نشد، می‌توانید:</p>
-  <button id="open-app" class="login__button" style="margin-top:1rem;">بازگشت به اپلیکیشن</button>
-  <br><br>
-  <a href="#" id="account-details" style="color:#fff; text-decoration:underline;">جزئیات اکانت</a> |
-  <a href="#" id="change-account" style="color:#fff; text-decoration:underline;">تغییر حساب</a>
-</div>
+      <div id="login-success">
+         <h2>ورود با موفقیت انجام شد</h2>
+         <p>اگر اپلیکیشن باز نشد، می‌توانید:</p>
+         <button id="open-app" class="login__button" style="margin-top:1rem; width:100%; max-width:300px;">بازگشت به اپلیکیشن</button>
+         <div style="margin-top:1rem;">
+            <a href="#" id="account-details">جزئیات اکانت</a> |
+            <a href="#" id="change-account">تغییر حساب</a>
+         </div>
+      </div>
    </div>
 
+   <!-- فقط یک اسکریپت -->
    <script type="module" src="auth.js"></script>
-
-   <script>
-      // حالت‌های بین فرم‌ها
-      document.getElementById("show-register").onclick = e => {
-         e.preventDefault();
-         document.getElementById("login-form").style.display = "none";
-         document.getElementById("register-form").style.display = "block";
-      };
-      document.getElementById("show-login").onclick = e => {
-         e.preventDefault();
-         document.getElementById("register-form").style.display = "none";
-         document.getElementById("login-form").style.display = "block";
-      };
-
-      // حالت برگشت به اپلیکیشن
-      document.getElementById("back-to-app").onclick = e => {
-         e.preventDefault();
-         const email = localStorage.getItem("user_email") || "";
-         window.location.href = "kingo://auth/callback?email=" + encodeURIComponent(email);
-      };
-
-      document.getElementById("change-account").onclick = e => {
-         e.preventDefault();
-         localStorage.removeItem("user_email");
-         location.reload();
-      };
-   </script>
 </body>
 </html>
-
