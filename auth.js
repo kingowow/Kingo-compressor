@@ -28,30 +28,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   showRegister.addEventListener("click", (e) => {
     e.preventDefault();
-    loginForm.style.display = "none";
-    registerForm.style.display = "block";
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
   });
 
   showLogin.addEventListener("click", (e) => {
     e.preventDefault();
-    registerForm.style.display = "none";
-    loginForm.style.display = "block";
+    registerForm.style.display = "block";
+    loginForm.style.display = "none";
   });
 
   async function showSuccess(email) {
-    // اول همه چیز را مخفی کن
-    loading.style.display = "none";
+    // مخفی کردن همه چیز
     loginForm.style.display = "none";
     registerForm.style.display = "none";
-    // سپس پیام موفقیت را نمایش بده
+    loading.style.display = "none";
     loginSuccess.style.display = "block";
 
-    // تنظیم دکمه‌ها
-    document.getElementById("open-app").onclick = () => redirectToApp(email);
+    // تنظیم رویدادها
+    document.getElementById("open-app").onclick = () => {
+      redirectToApp(email);
+    };
+
     document.getElementById("account-details").onclick = (e) => {
       e.preventDefault();
       alert(`📧 ایمیل شما: ${email}`);
     };
+
     document.getElementById("change-account").onclick = async (e) => {
       e.preventDefault();
       await supabase.auth.signOut();
@@ -59,10 +62,10 @@ document.addEventListener("DOMContentLoaded", () => {
       loginForm.style.display = "block";
     };
 
-    // ⏱️ حالا — بعد از نمایش UI — سعی در باز کردن اپلیکیشن
+    // ⬇️ تغییر: تأخیر را به 1500 میلی‌ثانیه افزایش دادیم تا پیام کاملاً نمایش داده شود
     setTimeout(() => {
       redirectToApp(email);
-    }, 1500); // 1.5 ثانیه تأخیر برای دیده شدن پیام
+    }, 1500); // 1.5 ثانیه
   }
 
   async function checkUser() {
@@ -74,8 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const user = data?.user;
 
     if (user) {
-      // ✅ فقط showSuccess — بدون redirect فوری
-      showSuccess(user.email);
+      showSuccess(user.email); // ✅ اول پیام می‌آید، بعد redirect
     } else {
       loading.style.display = "none";
       loginForm.style.display = "block";
@@ -106,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
       loginForm.style.display = "block";
       alert("ورود ناموفق: " + error.message);
     } else {
-      showSuccess(data.user.email);
+      showSuccess(data.user.email); // ✅ اول پیام، بعد redirect
     }
   });
 
@@ -135,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
       registerForm.style.display = "block";
       alert("ثبت‌نام ناموفق: " + error.message);
     } else {
-      showSuccess(email);
+      showSuccess(email); // ✅ اول پیام، بعد redirect
     }
   });
 
