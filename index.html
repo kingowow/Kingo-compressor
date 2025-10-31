@@ -1,12 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css">
    <link rel="stylesheet" href="assets/css/styles.css">
    <title>Login | Kingo Compressor</title>
+   <style>
+      /* --- استایل‌های اضافه برای لودینگ و موفقیت --- */
+      #loading, #success {
+         text-align: center;
+         color: #fff;
+         padding: 2rem;
+         display: none;
+      }
+      .loader {
+         border: 5px solid rgba(255, 255, 255, 0.2);
+         border-top: 5px solid #fff;
+         border-radius: 50%;
+         width: 60px;
+         height: 60px;
+         margin: 0 auto 1rem;
+         animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+         0% {transform: rotate(0);}
+         100% {transform: rotate(360deg);}
+      }
+      .success-btn {
+         background-color: #fff;
+         color: #000;
+         padding: 12px 20px;
+         border-radius: 8px;
+         display: inline-block;
+         margin: 8px;
+         text-decoration: none;
+         font-weight: 500;
+      }
+   </style>
 </head>
+
 <body>
    <div class="login">
       <img src="assets/img/login-bg.png" alt="image" class="login__bg">
@@ -49,12 +82,49 @@
          </div>
       </form>
 
-      <!-- لودینگ -->
-      <div id="loading" style="text-align: center; padding: 2rem; color: #fff;">
-         <p>در حال بارگذاری...</p>
+      <!-- صفحه لودینگ -->
+      <div id="loading">
+         <div class="loader"></div>
+         <p>در حال ورود...</p>
+      </div>
+
+      <!-- صفحه موفقیت -->
+      <div id="success">
+         <h2>✅ ورود با موفقیت انجام شد!</h2>
+         <p>می‌توانید به برنامه بازگردید یا جزئیات حساب خود را ببینید:</p>
+         <a href="#" id="back-to-app" class="success-btn">برگشت به اپلیکیشن</a>
+         <a href="https://kingowow.github.io/Kingo-compressor/account" class="success-btn">جزئیات حساب</a>
+         <a href="#" id="change-account" class="success-btn">تغییر حساب</a>
       </div>
    </div>
 
    <script type="module" src="auth.js"></script>
+
+   <script>
+      // حالت‌های بین فرم‌ها
+      document.getElementById("show-register").onclick = e => {
+         e.preventDefault();
+         document.getElementById("login-form").style.display = "none";
+         document.getElementById("register-form").style.display = "block";
+      };
+      document.getElementById("show-login").onclick = e => {
+         e.preventDefault();
+         document.getElementById("register-form").style.display = "none";
+         document.getElementById("login-form").style.display = "block";
+      };
+
+      // حالت برگشت به اپلیکیشن
+      document.getElementById("back-to-app").onclick = e => {
+         e.preventDefault();
+         const email = localStorage.getItem("user_email") || "";
+         window.location.href = "kingo://auth/callback?email=" + encodeURIComponent(email);
+      };
+
+      document.getElementById("change-account").onclick = e => {
+         e.preventDefault();
+         localStorage.removeItem("user_email");
+         location.reload();
+      };
+   </script>
 </body>
 </html>
