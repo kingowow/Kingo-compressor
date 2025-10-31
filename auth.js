@@ -7,13 +7,25 @@ const SUPABASE_KEY =
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// تابع ارسال به اپلیکیشن
-function redirectToApp(email) {
-  const appUrl = `kingo://auth/callback?email=${encodeURIComponent(email)}`;
-  window.location.href = appUrl;
+// استخراج پارامترهای URL
+function getUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    status: params.get("status"),
+    email: params.get("email")
+  };
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// باز کردن اپ از صفحه موفقیت
+function redirectToApp(email) {
+  const appUrl = `kingo://auth/callback?email=${encodeURIComponent(email)}`;
+  // اجازه بده 2-3 ثانیه UI نمایش داده بشه، بعد سعی در باز کردن اپ
+  setTimeout(() => {
+    window.location.href = appUrl;
+  }, 2000);
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
   const loginForm = document.getElementById("login-form");
   const registerForm = document.getElementById("register-form");
   const loading = document.getElementById("loading");
@@ -21,67 +33,55 @@ document.addEventListener("DOMContentLoaded", () => {
   const showRegister = document.getElementById("show-register");
   const showLogin = document.getElementById("show-login");
 
-  if (!loginForm || !registerForm || !loading || !loginSuccess || !showRegister || !showLogin) {
-    console.error("یکی از المنت‌ها پیدا نشد!");
-    return;
-  }
-
-  showRegister.addEventListener("click", (e) => {
-    e.preventDefault();
-    loginForm.style.display = "block";
-    registerForm.style.display = "none";
-  });
-
-  showLogin.addEventListener("click", (e) => {
-    e.preventDefault();
-    registerForm.style.display = "block";
-    loginForm.style.display = "none";
-  });
-
-  async function showSuccess(email) {
-    // مخفی کردن همه چیز
+  // بررسی حالت موفقیت از URL
+  const { status, email } = getUrlParams();
+  if (status === "success" && email) {
+    // نمایش صفحه موفقیت
     loginForm.style.display = "none";
     registerForm.style.display = "none";
     loading.style.display = "none";
     loginSuccess.style.display = "block";
 
-    // تنظیم رویدادها
-    document.getElementById("open-app").onclick = () => {
-      redirectToApp(email);
-    };
-
+    // تنظیم دکمه‌ها
+    document.getElementById("open-app").onclick = () => window.location.href = `kingo://auth/callback?email=${encodeURIComponent(email)}`;
     document.getElementById("account-details").onclick = (e) => {
       e.preventDefault();
       alert(`📧 ایمیل شما: ${email}`);
     };
-
     document.getElementById("change-account").onclick = async (e) => {
       e.preventDefault();
       await supabase.auth.signOut();
-      loginSuccess.style.display = "none";
-      loginForm.style.display = "block";
+      window.location.href = window.location.pathname; // بازگشت به صفحه اصلی
     };
 
-    // ⬇️ تغییر: تأخیر را به 1500 میلی‌ثانیه افزایش دادیم تا پیام کاملاً نمایش داده شود
-    setTimeout(() => {
-      redirectToApp(email);
-    }, 1500); // 1.5 ثانیه
+    // سعی در باز کردن اپ (با تأخیر)
+    redirectToApp(email);
+    return; // ✅ مهم: دیگر لاگین اولیه را اجرا نکن
   }
 
-  async function checkUser() {
-    loading.style.display = "block";
+  // --- حالت عادی (صفحه لاگین) ---
+  if (!loginForm || !registerForm || !loading || !loginSuccess || !showRegister || !showLogin) {
+    console.error("یکی از المنت‌ها پیدا نشد!");
+    return;
+  }
+
+  loginForm.style.display = "block";
+
+  showRegister.addEventListener("click", (e) => {
+    e.preventDefault();
     loginForm.style.display = "none";
+    registerForm.style.display = "block";
+  });
+
+  showLogin.addEventListener("click", (e) => {
+    e.preventDefault();
     registerForm.style.display = "none";
+    loginForm.style.display = "block";
+  });
 
-    const { data } = await supabase.auth.getUser();
-    const user = data?.user;
-
-    if (user) {
-      showSuccess(user.email); // ✅ اول پیام می‌آید، بعد redirect
-    } else {
-      loading.style.display = "none";
-      loginForm.style.display = "block";
-    }
+  // تابع ریدایرکت به صفحه موفقیت
+  function goToSuccessPage(email) {
+    window.location.href = `?status=success&email=${encodeURIComponent(email)}`;
   }
 
   // ورود
@@ -98,17 +98,14 @@ document.addEventListener("DOMContentLoaded", () => {
     loading.style.display = "block";
     loginForm.style.display = "none";
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       loading.style.display = "none";
       loginForm.style.display = "block";
       alert("ورود ناموفق: " + error.message);
     } else {
-      showSuccess(data.user.email); // ✅ اول پیام، بعد redirect
+      goToSuccessPage(data.user.email); // ✅ ریدایرکت به حالت موفقیت
     }
   });
 
@@ -118,12 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const email = document.getElementById("register-email").value.trim();
     const password = document.getElementById("register-password").value.trim();
 
-    if (!email || !password) {
-      alert("لطفاً ایمیل و رمز عبور را وارد کنید.");
-      return;
-    }
-    if (password.length < 6) {
-      alert("رمز عبور باید حداقل 6 کاراکتر باشد.");
+    if (!email || !password || password.length < 6) {
+      alert("لطفاً ایمیل و رمز عبور (حداقل 6 کاراکتر) را وارد کنید.");
       return;
     }
 
@@ -137,10 +130,11 @@ document.addEventListener("DOMContentLoaded", () => {
       registerForm.style.display = "block";
       alert("ثبت‌نام ناموفق: " + error.message);
     } else {
-      showSuccess(email); // ✅ اول پیام، بعد redirect
+      goToSuccessPage(email); // ✅ ریدایرکت به حالت موفقیت
     }
   });
 
-  // اجرای اولیه
-  checkUser();
+  // بررسی کاربر لاگین‌شده (اختیاری — اگر نیاز داری)
+  // اما توجه: اگر کاربر قبلاً لاگین کرده، بهتر است مستقیماً به /success ریدایرکت شود
+  // که این کار را می‌توانی در سرور یا با localStorage هم انجام بدی.
 });
