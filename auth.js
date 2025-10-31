@@ -2,7 +2,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = "https://ymjgidrtdcrwjclwezun.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltamdpZHJ0ZGNyd2pjbHdlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MTQxMzQsImV4cCI6MjA3NzM5MDEzNH0.Et8PfbGMB1E2-tyrmd1do53D3BVvS8foa3j9CE596tE";
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltamdpZHJ0ZGNyd2pjbHdlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MTQxMzQsImV4cCI6MjA3NzM5MDEzNH0.Et8PfbGMB1E2-tyrmd1do53D3BVvS8foa3j9CE596tE";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -11,9 +12,6 @@ function redirectToApp(email) {
   const appUrl = `kingo://auth/callback?email=${encodeURIComponent(email)}`;
   window.location.href = appUrl;
 }
-
-// ذخیره موقت ایمیل برای استفاده در صفحه موفقیت
-let currentUserEmail = "";
 
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
@@ -28,56 +26,59 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // سوئیچ فرم‌ها
   showRegister.addEventListener("click", (e) => {
     e.preventDefault();
-    loginForm.style.display = "none";
-    registerForm.style.display = "block";
+    loginForm.style.display = "block";
+    registerForm.style.display = "none";
   });
 
   showLogin.addEventListener("click", (e) => {
     e.preventDefault();
-    registerForm.style.display = "none";
-    loginForm.style.display = "block";
+    registerForm.style.display = "block";
+    loginForm.style.display = "none";
   });
 
-  // نمایش صفحه موفقیت
-  function showSuccess(email) {
-    currentUserEmail = email;
-    loading.style.display = "none";
+  async function showSuccess(email) {
+    // مخفی کردن همه چیز
     loginForm.style.display = "none";
     registerForm.style.display = "none";
+    loading.style.display = "none";
     loginSuccess.style.display = "block";
 
-    // دکمه بازگشت به اپ
-    document.getElementById("open-app").onclick = () => redirectToApp(email);
-
-    // دکمه جزئیات اکانت
-    document.getElementById("account-details").onclick = (e) => {
-      e.preventDefault();
-      window.location.href = "/Kingo-compressor/account";
+    // تنظیم رویدادها
+    document.getElementById("open-app").onclick = () => {
+      redirectToApp(email);
     };
 
-    // دکمه تغییر حساب
+    document.getElementById("account-details").onclick = (e) => {
+      e.preventDefault();
+      alert(`📧 ایمیل شما: ${email}`);
+    };
+
     document.getElementById("change-account").onclick = async (e) => {
       e.preventDefault();
       await supabase.auth.signOut();
       loginSuccess.style.display = "none";
       loginForm.style.display = "block";
     };
+
+    // redirect با تأخیر 1 ثانیه (برای نمایش پیام)
+    setTimeout(() => {
+      redirectToApp(email);
+    }, 1000);
   }
 
-  // چک کردن کاربر در ورود
   async function checkUser() {
     loading.style.display = "block";
+    loginForm.style.display = "none";
+    registerForm.style.display = "none";
 
     const { data } = await supabase.auth.getUser();
     const user = data?.user;
 
     if (user) {
+      // فقط نمایش پیام موفقیت — بدون redirect فوری
       showSuccess(user.email);
-      // تلاش برای باز کردن اپ
-      setTimeout(() => redirectToApp(user.email), 1000);
     } else {
       loading.style.display = "none";
       loginForm.style.display = "block";
@@ -98,7 +99,10 @@ document.addEventListener("DOMContentLoaded", () => {
     loading.style.display = "block";
     loginForm.style.display = "none";
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     if (error) {
       loading.style.display = "none";
@@ -106,7 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("ورود ناموفق: " + error.message);
     } else {
       showSuccess(data.user.email);
-      setTimeout(() => redirectToApp(data.user.email), 1000);
     }
   });
 
@@ -136,9 +139,9 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("ثبت‌نام ناموفق: " + error.message);
     } else {
       showSuccess(email);
-      setTimeout(() => redirectToApp(email), 1000);
     }
   });
 
+  // اجرای اولیه
   checkUser();
 });
