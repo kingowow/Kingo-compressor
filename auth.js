@@ -28,16 +28,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   showRegister.addEventListener("click", (e) => {
-    e.preventDefault();
-    loginForm.style.display = "block";
-    registerForm.style.display = "none";
-  });
+  e.preventDefault();
+  loginForm.style.display = "none";
+  registerForm.style.display = "block";
+});
 
   showLogin.addEventListener("click", (e) => {
-    e.preventDefault();
-    registerForm.style.display = "block";
-    loginForm.style.display = "none";
-  });
+  e.preventDefault();
+  registerForm.style.display = "none";
+  loginForm.style.display = "block";
+});
 
   // ورود با گوگل
   if (googleLoginBtn) {
