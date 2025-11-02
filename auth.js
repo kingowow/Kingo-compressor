@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin + "/index.html",
+          redirectTo: "https://kingowow.github.io/Kingo-compressor",
         },
       });
 
