@@ -1,10 +1,13 @@
+// auth.js
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = "https://ymjgidrtdcrwjclwezun.supabase.co";
-const SUPABASE_KEY = "YOUR_SUPABASE_KEY"; // جایگزین با کلید واقعی
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltamdpZHJ0ZGNyd2pjbHdlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MTQxMzQsImV4cCI6MjA3NzM5MDEzNH0.Et8PfbGMB1E2-tyrmd1do53D3BVvS8foa3j9CE596tE";
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ارسال به اپلیکیشن
+// تابع ارسال به اپلیکیشن
 function redirectToApp(email) {
   const appUrl = `kingo://auth/callback?email=${encodeURIComponent(email)}`;
   window.location.href = appUrl;
@@ -17,77 +20,109 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginSuccess = document.getElementById("login-success");
   const showRegister = document.getElementById("show-register");
   const showLogin = document.getElementById("show-login");
-  const loginGoogle = document.getElementById("login-google");
-  const registerGoogle = document.getElementById("register-google");
+  const googleLoginBtn = document.getElementById("google-login");
 
   if (!loginForm || !registerForm || !loading || !loginSuccess || !showRegister || !showLogin) {
     console.error("یکی از المنت‌ها پیدا نشد!");
     return;
   }
 
-  // نمایش فرم‌ها
-  showRegister.addEventListener("click", e => {
+  showRegister.addEventListener("click", (e) => {
     e.preventDefault();
-    loginForm.style.display = "none";
-    registerForm.style.display = "block";
-  });
-  showLogin.addEventListener("click", e => {
-    e.preventDefault();
-    registerForm.style.display = "none";
     loginForm.style.display = "block";
+    registerForm.style.display = "none";
   });
 
-  // نمایش پیام موفقیت
+  showLogin.addEventListener("click", (e) => {
+    e.preventDefault();
+    registerForm.style.display = "block";
+    loginForm.style.display = "none";
+  });
+
+  // ورود با گوگل
+  if (googleLoginBtn) {
+    googleLoginBtn.addEventListener("click", async () => {
+      loading.style.display = "block";
+      loginForm.style.display = "none";
+      registerForm.style.display = "none";
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + "/index.html",
+        },
+      });
+
+      if (error) {
+        loading.style.display = "none";
+        loginForm.style.display = "block";
+        alert("خطا در ورود با گوگل: " + error.message);
+      }
+    });
+  }
+
   async function showSuccess(email) {
     loginForm.style.display = "none";
     registerForm.style.display = "none";
     loading.style.display = "none";
     loginSuccess.style.display = "block";
 
-    document.getElementById("open-app").onclick = () => redirectToApp(email);
-    document.getElementById("account-details").onclick = e => {
+    document.getElementById("open-app").onclick = () => {
+      redirectToApp(email);
+    };
+
+    document.getElementById("account-details").onclick = (e) => {
       e.preventDefault();
       alert(`📧 ایمیل شما: ${email}`);
     };
-    document.getElementById("change-account").onclick = async e => {
+
+    document.getElementById("change-account").onclick = async (e) => {
       e.preventDefault();
       await supabase.auth.signOut();
       loginSuccess.style.display = "none";
       loginForm.style.display = "block";
     };
 
-    setTimeout(() => redirectToApp(email), 1000);
+    setTimeout(() => {
+      redirectToApp(email);
+    }, 1000);
   }
 
-  // بررسی لاگین قبلی
   async function checkUser() {
     loading.style.display = "block";
     loginForm.style.display = "none";
     registerForm.style.display = "none";
 
+    // تأخیر کوچک برای اطمینان از بارگذاری session پس از redirect
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
     const { data } = await supabase.auth.getUser();
     const user = data?.user;
-
-    loading.style.display = "none";
 
     if (user) {
       showSuccess(user.email);
     } else {
+      loading.style.display = "none";
       loginForm.style.display = "block";
     }
   }
 
-  // ورود با ایمیل/پسورد
-  loginForm.addEventListener("submit", async e => {
+  // ورود با ایمیل/رمز
+  loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value.trim();
-    if (!email || !password) return alert("لطفاً ایمیل و رمز عبور را وارد کنید.");
+
+    if (!email || !password) {
+      alert("لطفاً ایمیل و رمز عبور را وارد کنید.");
+      return;
+    }
 
     loading.style.display = "block";
     loginForm.style.display = "none";
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
     if (error) {
       loading.style.display = "none";
       loginForm.style.display = "block";
@@ -97,19 +132,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ثبت‌نام با ایمیل/پسورد
-  registerForm.addEventListener("submit", async e => {
+  // ثبت‌نام
+  registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("register-email").value.trim();
     const password = document.getElementById("register-password").value.trim();
 
-    if (!email || !password) return alert("لطفاً ایمیل و رمز عبور را وارد کنید.");
-    if (password.length < 6) return alert("رمز عبور باید حداقل 6 کاراکتر باشد.");
+    if (!email || !password) {
+      alert("لطفاً ایمیل و رمز عبور را وارد کنید.");
+      return;
+    }
+    if (password.length < 6) {
+      alert("رمز عبور باید حداقل 6 کاراکتر باشد.");
+      return;
+    }
 
     loading.style.display = "block";
     registerForm.style.display = "none";
 
     const { data, error } = await supabase.auth.signUp({ email, password });
+
     if (error) {
       loading.style.display = "none";
       registerForm.style.display = "block";
@@ -119,17 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ورود/ثبت‌نام با گوگل
-  async function signInWithGoogle() {
-    const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
-    if (error) {
-      alert("ورود با گوگل ناموفق: " + error.message);
-    }
-  }
-
-  loginGoogle.addEventListener("click", signInWithGoogle);
-  registerGoogle.addEventListener("click", signInWithGoogle);
-
-  // شروع
+  // اجرای اولیه
   checkUser();
 });
