@@ -1,132 +1,157 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css">
-   <link rel="stylesheet" href="assets/css/styles.css">
-   <title>Login | Kingo Compressor</title>
-   <style>
-      #loading, #login-success {
-         text-align: center;
-         color: #fff;
-         padding: 2rem;
-         display: none;
-      }
-      .loader {
-         border: 5px solid rgba(255,255,255,0.2);
-         border-top: 5px solid #fff;
-         border-radius: 50%;
-         width: 60px;
-         height: 60px;
-         margin: 0 auto 1rem;
-         animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-         0% { transform: rotate(0); }
-         100% { transform: rotate(360deg); }
-      }
-      .login__button, .google-btn {
-         background-color: #fff;
-         color: #000;
-         padding: 12px 20px;
-         border-radius: 8px;
-         border: none;
-         font-weight: 500;
-         cursor: pointer;
-         width: 100%;
-         max-width: 300px;
-         margin-top: 1rem;
-      }
-      .google-btn {
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         gap: 8px;
-      }
-      #login-success .action-buttons {
-         margin-top: 1.5rem;
-         display: flex;
-         flex-direction: column;
-         gap: 12px;
-      }
-      #login-success .text-button {
-         background: none;
-         border: none;
-         color: #fff;
-         text-decoration: underline;
-         cursor: pointer;
-         font-size: 1rem;
-         padding: 4px;
-      }
-   </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <title>Login | Kingo Compressor</title>
+  <style>
+    #loading, #login-success {
+      text-align: center;
+      color: #fff;
+      padding: 2rem;
+      display: none;
+    }
+    .loader {
+      border: 5px solid rgba(255,255,255,0.2);
+      border-top: 5px solid #fff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 1rem;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0); }
+      100% { transform: rotate(360deg); }
+    }
+    .login__button {
+      background-color: #fff;
+      color: #000;
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      max-width: 300px;
+      margin-top: 1rem;
+    }
+    .google-button {
+      background: #4285F4;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    #login-success .action-buttons {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    #login-success .text-button {
+      background: none;
+      border: none;
+      color: #fff;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 4px;
+    }
+  </style>
 </head>
 <body>
-   <div class="login">
-      <img src="assets/img/login-bg.png" alt="image" class="login__bg">
+  <div class="login">
+    <img src="assets/img/login-bg.png" alt="image" class="login__bg" />
 
-      <!-- فرم ورود -->
-      <form class="login__form" id="login-form" style="display: none;">
-         <h1 class="login__title">ورود</h1>
-         <div class="login__inputs">
-            <div class="login__box">
-               <input type="email" id="login-email" placeholder="ایمیل" required class="login__input">
-               <i class="ri-mail-fill"></i>
-            </div>
-            <div class="login__box">
-               <input type="password" id="login-password" placeholder="رمز عبور" required class="login__input">
-               <i class="ri-lock-2-fill"></i>
-            </div>
-         </div>
-         <button type="submit" class="login__button">ورود</button>
-         <button type="button" id="login-google" class="google-btn">
-           <img src="assets/img/google-logo.png" width="20" height="20" /> ورود با گوگل
-         </button>
-         <div class="login__register">
-            حساب ندارید؟ <a href="#" id="show-register">ثبت‌نام کنید</a>
-         </div>
-      </form>
+    <!-- فرم ورود -->
+    <form class="login__form" id="login-form" style="display: none;">
+      <h1 class="login__title">ورود</h1>
+      <div class="login__inputs">
+        <div class="login__box">
+          <input type="email" id="login-email" placeholder="ایمیل" required class="login__input" />
+          <i class="ri-mail-fill"></i>
+        </div>
+        <div class="login__box">
+          <input type="password" id="login-password" placeholder="رمز عبور" required class="login__input" />
+          <i class="ri-lock-2-fill"></i>
+        </div>
+      </div>
+      <button type="submit" class="login__button">ورود</button>
 
-      <!-- فرم ثبت‌نام -->
-      <form class="login__form" id="register-form" style="display: none;">
-         <h1 class="login__title">ثبت‌نام</h1>
-         <div class="login__inputs">
-            <div class="login__box">
-               <input type="email" id="register-email" placeholder="ایمیل" required class="login__input">
-               <i class="ri-mail-fill"></i>
-            </div>
-            <div class="login__box">
-               <input type="password" id="register-password" placeholder="رمز عبور (حداقل 6 کاراکتر)" required class="login__input">
-               <i class="ri-lock-2-fill"></i>
-            </div>
-         </div>
-         <button type="submit" class="login__button">ثبت‌نام</button>
-         <button type="button" id="register-google" class="google-btn">
-           <img src="assets/img/google-logo.png" width="20" height="20" /> ثبت‌نام با گوگل
-         </button>
-         <div class="login__register">
-            حساب دارید؟ <a href="#" id="show-login">وارد شوید</a>
-         </div>
-      </form>
-
-      <!-- لودینگ -->
-      <div id="loading">
-         <div class="loader"></div>
-         <p>در حال ورود...</p>
+      <!-- دکمه ورود با گوگل -->
+      <div style="text-align: center; margin-top: 1rem;">
+        <button type="button" id="google-login" class="login__button google-button">
+          <i class="ri-google-fill"></i>
+          ورود با گوگل
+        </button>
       </div>
 
-      <!-- پیام موفقیت -->
-      <div id="login-success">
-         <h2>ورود با موفقیت انجام شد</h2>
-         <p>اگر اپلیکیشن باز نشد، می‌توانید:</p>
-         <button id="open-app" class="login__button">بازگشت به اپلیکیشن</button>
-         <div class="action-buttons">
-            <button id="account-details" class="text-button">جزئیات اکانت</button>
-            <button id="change-account" class="text-button">تغییر حساب</button>
-         </div>
+      <div class="login__register">
+        حساب ندارید؟ <a href="#" id="show-register">ثبت‌نام کنید</a>
       </div>
-   </div>
+    </form>
 
-   <script type="module" src="auth.js"></script>
+    <!-- فرم ثبت‌نام -->
+    <form class="login__form" id="register-form" style="display: none;">
+      <h1 class="login__title">ثبت‌نام</h1>
+      <div class="login__inputs">
+        <div class="login__box">
+          <input type="email" id="register-email" placeholder="ایمیل" required class="login__input" />
+          <i class="ri-mail-fill"></i>
+        </div>
+        <div class="login__box">
+          <input type="password" id="register-password" placeholder="رمز عبور (حداقل 6 کاراکتر)" required class="login__input" />
+          <i class="ri-lock-2-fill"></i>
+        </div>
+      </div>
+      <button type="submit" class="login__button">ثبت‌نام</button>
+
+      <!-- دکمه ورود با گوگل -->
+      <div style="text-align: center; margin-top: 1rem;">
+        <button type="button" id="google-login-2" class="login__button google-button">
+          <i class="ri-google-fill"></i>
+          ورود با گوگل
+        </button>
+      </div>
+
+      <div class="login__register">
+        حساب دارید؟ <a href="#" id="show-login">وارد شوید</a>
+      </div>
+    </form>
+
+    <!-- لودینگ -->
+    <div id="loading">
+      <div class="loader"></div>
+      <p>در حال ورود...</p>
+    </div>
+
+    <!-- پیام موفقیت -->
+    <div id="login-success">
+      <h2>ورود با موفقیت انجام شد</h2>
+      <p>اگر اپلیکیشن باز نشد، می‌توانید:</p>
+      <button id="open-app" class="login__button">بازگشت به اپلیکیشن</button>
+      <div class="action-buttons">
+        <button id="account-details" class="text-button">جزئیات اکانت</button>
+        <button id="change-account" class="text-button">تغییر حساب</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="auth.js"></script>
+
+  <!-- اتصال دکمه گوگل در فرم ثبت‌نام به همان تابع -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const btn1 = document.getElementById("google-login");
+      const btn2 = document.getElementById("google-login-2");
+      if (btn2 && btn1) {
+        btn2.onclick = btn1.onclick;
+      }
+    });
+  </script>
 </body>
 </html>
