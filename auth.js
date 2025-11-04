@@ -1,6 +1,7 @@
-// auth.js
+// auth.js — نسخه اصلاح‌شده
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// 🔴 فاصله‌های اضافه پاک شدن
 const SUPABASE_URL = "https://ymjgidrtdcrwjclwezun.supabase.co";
 const SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltamdpZHJ0ZGNyd2pjbHdlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MTQxMzQsImV4cCI6MjA3NzM5MDEzNH0.Et8PfbGMB1E2-tyrmd1do53D3BVvS8foa3j9CE596tE";
@@ -39,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.style.display = "block";
   });
 
-  // تابع مشترک برای ورود با گوگل
+  // تابع مشترک برای ورود با گوگل — 🔴 بهتره اینجا هم redirect درست باشه
   async function handleGoogleLogin() {
     loading.style.display = "block";
     loginForm.style.display = "none";
@@ -48,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin + "/",
+        redirectTo: "https://kingowow.github.io/Kingo-compressor/",
       },
     });
 
@@ -57,10 +58,8 @@ document.addEventListener("DOMContentLoaded", () => {
       loginForm.style.display = "block";
       alert("خطا در ورود با گوگل: " + error.message);
     }
-    // در صورت موفقیت، Supabase به redirectTo هدایت می‌کند و checkUser() اجرا می‌شود
   }
 
-  // اتصال هر دو دکمه گوگل
   const googleBtn1 = document.getElementById("google-login");
   const googleBtn2 = document.getElementById("google-login-2");
 
@@ -74,28 +73,39 @@ document.addEventListener("DOMContentLoaded", () => {
     loading.style.display = "none";
     loginSuccess.style.display = "block";
 
-    document.getElementById("open-app")?.addEventListener("click", () => {
-      redirectToApp(email);
-    });
+    // جلوگیری از افزودن event listener چندباره
+    document.getElementById("open-app")?.replaceWith(
+      Object.assign(document.getElementById("open-app")?.cloneNode(true), {
+        onclick: () => redirectToApp(email),
+      })
+    );
 
-    document.getElementById("account-details")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      alert(`📧 ایمیل شما: ${email}`);
-    });
+    document.getElementById("account-details")?.replaceWith(
+      Object.assign(document.getElementById("account-details")?.cloneNode(true), {
+        onclick: (e) => {
+          e.preventDefault();
+          alert(`📧 ایمیل شما: ${email}`);
+        },
+      })
+    );
 
-    document.getElementById("change-account")?.addEventListener("click", async (e) => {
-      e.preventDefault();
-      await supabase.auth.signOut();
-      loginSuccess.style.display = "none";
-      loginForm.style.display = "block";
-    });
+    document.getElementById("change-account")?.replaceWith(
+      Object.assign(document.getElementById("change-account")?.cloneNode(true), {
+        onclick: async (e) => {
+          e.preventDefault();
+          await supabase.auth.signOut();
+          loginSuccess.style.display = "none";
+          loginForm.style.display = "block";
+        },
+      })
+    );
 
     setTimeout(() => {
       redirectToApp(email);
     }, 1000);
   }
 
-  // بررسی خودکار وضعیت کاربر در هر بار بارگذاری صفحه
+  // بررسی خودکار وضعیت کاربر
   async function checkUser() {
     loading.style.display = "block";
     loginForm.style.display = "none";
@@ -139,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ثبت‌نام
+  // ثبت‌نام — 🔴 فاصله اضافه در emailRedirectTo پاک شد
   registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("register-email")?.value.trim();
@@ -158,12 +168,12 @@ document.addEventListener("DOMContentLoaded", () => {
     registerForm.style.display = "none";
 
     const { data, error } = await supabase.auth.signUp({
-  email,
-  password,
-  options: {
-    emailRedirectTo: "https://kingowow.github.io/Kingo-compressor/"
-  }
-});
+      email,
+      password,
+      options: {
+        emailRedirectTo: "https://kingowow.github.io/Kingo-compressor/", // 🔴 بدون فاصله
+      },
+    });
 
     if (error) {
       loading.style.display = "none";
