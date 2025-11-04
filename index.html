@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="assets/css/styles.css" />
   <title>Login | Kingo Compressor</title>
   <style>
-    /* لودینگ، موفقیت و دیالوگ تأیید ایمیل */
+    /* دیالوگ‌ها */
     #loading,
     #login-success,
     #email-verify-wait {
@@ -63,8 +63,7 @@
       gap: 8px;
     }
 
-    #login-success .action-buttons,
-    #email-verify-wait .action-buttons {
+    .action-buttons {
       margin-top: 1.5rem;
       display: flex;
       flex-direction: column;
@@ -163,7 +162,7 @@
       <p>📧 لطفاً به صندوق ایمیل خود بروید و روی لینک تأیید کلیک کنید.</p>
       <button id="check-email-confirmed" class="login__button">تایید کردم</button>
       <div class="action-buttons">
-        <button id="resend-email" class="text-button">ارسال مجدد ایمیل</button>
+        <button id="resend-email" class="text-button" disabled>ارسال مجدد ایمیل (60s)</button>
         <button id="cancel-verify" class="text-button">لغو</button>
       </div>
     </div>
