@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" />
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
-    /* همان استایل‌های لودینگ و دیالوگ از index.html */
+    /* استایل‌های لودینگ و دیالوگ — دقیقاً مثل index.html */
     #loading,
     #account-section,
     #not-logged-in {
@@ -184,20 +184,19 @@
 
     const supabase = createClient(
       "https://ymjgidrtdcrwjclwezun.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInRlZiI6InltamdpZHJ0ZGNyd2pjbHdlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MTQxMzQsImV4cCI6MjA3NzM5MDEzNH0.Et8PfbGMB1E2-tyrmd1do53D3BVvS8foa3j9CE596tE"
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltamdpZHJ0ZGNyd2pjbHdlenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MTQxMzQsImV4cCI6MjA3NzM5MDEzNH0.Et8PfbGMB1E2-tyrmd1do53D3BVvS8foa3j9CE596tE"
     );
 
     const loading = document.getElementById("loading");
     const accountSection = document.getElementById("account-section");
     const notLoggedIn = document.getElementById("not-logged-in");
 
-    // بازگشت به اپ
+    // توابع کمکی
     function redirectToApp(email) {
       const appUrl = `kingo://auth/callback?email=${encodeURIComponent(email)}`;
       window.location.href = appUrl;
     }
 
-    // کپی متن
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text).then(() => {
         alert("کپی شد: " + text);
@@ -206,7 +205,6 @@
       });
     }
 
-    // تبدیل تاریخ به شمسی
     function toJalali(date) {
       return new Date(date).toLocaleDateString("fa-IR", {
         year: "numeric",
@@ -217,19 +215,8 @@
       });
     }
 
-    async function checkAuth() {
-      loading.style.display = "block";
-      accountSection.style.display = "none";
-      notLoggedIn.style.display = "none";
-
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data?.user) {
-        loading.style.display = "none";
-        notLoggedIn.style.display = "block";
-        return;
-      }
-
-      const user = data.user;
+    // نمایش اطلاعات کاربر
+    function showUser(user) {
       const meta = user.user_metadata || {};
       const provider = user.app_metadata?.provider || (meta.full_name ? "google" : "email");
 
@@ -245,6 +232,7 @@
         avatar.style.borderRadius = "50%";
         avatar.style.border = "4px solid rgba(255,255,255,0.3)";
         avatar.style.marginBottom = "1rem";
+        document.getElementById("avatar-container").innerHTML = "";
         document.getElementById("avatar-container").appendChild(avatar);
       }
 
@@ -288,7 +276,7 @@
         if (email && confirm("لینک تغییر رمز به ایمیل ارسال شود؟")) {
           supabase.auth.resetPasswordForEmail(email, {
             redirectTo: "https://kingowow.github.io/Kingo-compressor/"
-          }).then(() => alert("لینک ارسال شد!")).catch(() => alert("خطا در ارسال"));
+          }).then(() => alert("لینک ارسال شد!")).catch(err => alert("خطا: " + err.message));
         }
       };
 
@@ -300,17 +288,45 @@
         }
       };
 
-      document.getElementById("delete-account").onclick = async () => {
-        if (!confirm("⚠️ هشدار: این عملیات قابل بازگشت نیست!\nآیا واقعاً می‌خواهید حساب خود را حذف کنید؟")) return;
+      document.getElementById("delete-account").onclick = () => {
+        if (!confirm("هشدار: این عملیات قابل بازگشت نیست!\nآیا واقعاً می‌خواهید حساب خود را حذف کنید؟")) return;
         if (!confirm("آخرین تأیید: تمام داده‌ها حذف می‌شوند. ادامه؟")) return;
-
-        // در Supabase، حذف کاربر فقط از طریق Admin API ممکن است
-        alert("حذف حساب در حال حاضر فقط از طریق پنل Supabase امکان‌پذیر است.\nشناسه کاربر: " + user.id);
+        alert("حذف حساب فقط از طریق پنل Supabase امکان‌پذیر است.\nشناسه کاربر: " + user.id);
       };
     }
 
-    // اجرای اولیه
-    checkAuth();
+    // اجرای اصلی
+    async function initAuth() {
+      loading.style.display = "block";
+
+      // 1. چک کردن وضعیت فعلی
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (user) {
+        showUser(user);
+        return;
+      }
+
+      // 2. اگر کاربر لاگین نیست، منتظر تغییر وضعیت باش
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (event === "SIGNED_IN" && session?.user) {
+          showUser(session.user);
+        } else if (event === "SIGNED_OUT") {
+          loading.style.display = "none";
+          notLoggedIn.style.display = "block";
+        }
+      });
+
+      // 3. اگر بعد از 2 ثانیه هنوز لاگین نشده
+      setTimeout(() => {
+        if (accountSection.style.display !== "block") {
+          loading.style.display = "none";
+          notLoggedIn.style.display = "block";
+        }
+      }, 2000);
+    }
+
+    // شروع
+    initAuth();
   </script>
 </body>
 </html>
