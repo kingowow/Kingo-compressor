@@ -46,23 +46,9 @@ function showEmailVerifyWait(email) {
   const resendBtn = document.getElementById("resend-email");
   const cancelBtn = document.getElementById("cancel-verify");
 
-  checkBtn.onclick = async () => {
-    document.getElementById("loading").style.display = "block";
-    document.getElementById("email-verify-wait").style.display = "none";
-
-    // 🔁 رفرش جلسه بدون رفرش صفحه
-    await supabase.auth.refreshSession();
-
-    const { data } = await supabase.auth.getUser();
-    const user = data?.user;
-
-    if (user && user.email_confirmed_at) {
-      showSuccess(user.email);
-    } else {
-      document.getElementById("loading").style.display = "none";
-      alert("❌ ایمیل هنوز تأیید نشده است. لطفاً ابتدا روی لینک ایمیل کلیک کنید.");
-      showEmailVerifyWait(email);
-    }
+  // ✅ راه‌حل نهایی: رفرش صفحه برای دریافت وضعیت به‌روز
+  checkBtn.onclick = () => {
+    window.location.reload();
   };
 
   resendBtn.onclick = async () => {
@@ -102,7 +88,8 @@ function showSuccess(email) {
 
   document.getElementById("open-app").onclick = () => redirectToApp(email);
   document.getElementById("account-details").onclick = () => {
-    window.location.href = "https://kingowow.github.io/account";
+    // ✅ مسیر صحیح جزئیات اکانت
+    window.location.href = "https://kingowow.github.io/Kingo-compressor/account";
   };
   document.getElementById("change-account").onclick = async () => {
     await supabase.auth.signOut();
@@ -113,7 +100,7 @@ function showSuccess(email) {
   setTimeout(() => redirectToApp(email), 1000);
 }
 
-// بررسی خودکار وضعیت کاربر
+// بررسی خودکار وضعیت کاربر — این تابع بعد از هر رفرش اجرا می‌شه
 async function checkUser() {
   document.getElementById("loading").style.display = "block";
 
@@ -238,5 +225,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // این تابع بعد از هر رفرش (مثل کلیک روی «تایید کردم») اجرا می‌شه
   await checkUser();
 });
