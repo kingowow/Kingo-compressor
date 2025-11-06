@@ -10,7 +10,8 @@
     /* دیالوگ‌ها */
     #loading,
     #login-success,
-    #email-verify-wait {
+    #email-verify-wait,
+    #magic-link-sent {
       position: absolute;
       top: 50%;
       left: 50%;
@@ -63,6 +64,15 @@
       gap: 8px;
     }
 
+    .magic-button {
+      background: #6366f1;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
     .action-buttons {
       margin-top: 1.5rem;
       display: flex;
@@ -99,6 +109,14 @@
         </div>
       </div>
       <button type="submit" class="login__button">ورود</button>
+
+      <!-- ورود بدون رمز (Magic Link) -->
+      <div style="text-align: center; margin-top: 1rem;">
+        <button type="button" id="magic-login" class="login__button magic-button">
+          <i class="ri-link"></i>
+          ورود بدون رمز (لینک به ایمیل)
+        </button>
+      </div>
 
       <div style="text-align: center; margin-top: 1rem;">
         <button type="button" id="google-login" class="login__button google-button">
@@ -159,12 +177,19 @@
     <!-- دیالوگ انتظار تأیید ایمیل -->
     <div id="email-verify-wait">
       <h2>تایید ایمیل</h2>
-      <p>📧 لطفاً به صندوق ایمیل خود بروید و روی لینک تأیید کلیک کنید.</p>
+      <p>لطفاً به صندوق ایمیل خود بروید و روی لینک تأیید کلیک کنید.</p>
       <button id="check-email-confirmed" class="login__button">تایید کردم</button>
       <div class="action-buttons">
         <button id="resend-email" class="text-button" disabled>ارسال مجدد ایمیل (60s)</button>
         <button id="cancel-verify" class="text-button">لغو</button>
       </div>
+    </div>
+
+    <!-- پیام ارسال لینک جادویی -->
+    <div id="magic-link-sent">
+      <h2>لینک ورود ارسال شد!</h2>
+      <p>لطفاً ایمیل خود را چک کنید و روی لینک کلیک کنید.</p>
+      <button id="back-to-login" class="login__button">بازگشت به ورود</button>
     </div>
   </div>
 
