@@ -291,7 +291,7 @@
         const email = prompt("ایمیل خود را تأیید کنید:", user.email);
         if (email === user.email) {
           supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.href
+            redirectTo: "https://kingowow.github.io/Kingo-compressor/account.html"
           }).then(() => alert("لینک تغییر رمز به ایمیل ارسال شد!"))
           .catch(err => alert("خطا: " + err.message));
         }
@@ -307,10 +307,7 @@
     // فرم تغییر رمز
     document.getElementById("submit-new-password").onclick = async () => {
       const password = document.getElementById("new-password").value.trim();
-      if (password.length < 6) {
-        alert("رمز عبور باید حداقل 6 کاراکتر باشد.");
-        return;
-      }
+      if (password.length < 6) return alert("رمز عبور باید حداقل 6 کاراکتر باشد.");
 
       const { error } = await supabase.auth.updateUser({ password });
       if (error) {
@@ -318,22 +315,31 @@
       } else {
         alert("رمز عبور با موفقیت تغییر کرد!");
         resetForm.style.display = "none";
-        accountSection.style.display = "block";
+        window.location.href = "/Kingo-compressor/account.html";
       }
     };
 
     document.getElementById("cancel-reset").onclick = () => {
       resetForm.style.display = "none";
-      accountSection.style.display = "block";
+      window.location.href = "/Kingo-compressor/account.html";
     };
 
-    // چک کردن URL برای #access_token (بعد از کلیک روی لینک ایمیل)
+    // چک کردن توکن ریست پسورد در URL
     async function checkForPasswordReset() {
-      if (window.location.hash.includes("access_token")) {
-        resetForm.style.display = "block";
-        accountSection.style.display = "none";
-        loading.style.display = "none";
-        return true;
+      const hash = window.location.hash;
+      if (hash && hash.includes("access_token")) {
+        const { data, error } = await supabase.auth.getSession();
+        if (data.session) {
+          resetForm.style.display = "block";
+          accountSection.style.display = "none";
+          notLoggedIn.style.display = "none";
+          loading.style.display = "none";
+          return true;
+        } else {
+          alert("لینک منقضی شده یا نامعتبر است.");
+          window.location.href = "/Kingo-compressor/";
+          return true;
+        }
       }
       return false;
     }
@@ -342,17 +348,17 @@
     async function initAuth() {
       loading.style.display = "block";
 
-      // 1. چک کردن توکن تغییر رمز در URL
+      // 1. چک کردن توکن ریست پسورد
       if (await checkForPasswordReset()) return;
 
-      // 2. چک کردن کاربر
-      const { data: { user } } = await supabase.auth.getUser();
+      // 2. چک کردن کاربر با کوکی/سشن
+      const { data: { user }, error } = await supabase.auth.getUser();
       if (user) {
         showUser(user);
         return;
       }
 
-      // 3. منتظر تغییر وضعیت
+      // 3. منتظر تغییر وضعیت (مثلاً ورود از صفحه دیگر)
       supabase.auth.onAuthStateChange((event, session) => {
         if (event === "SIGNED_IN" && session?.user) {
           showUser(session.user);
@@ -362,6 +368,7 @@
         }
       });
 
+      // 4. اگر بعد از 2 ثانیه هنوز لاگین نشده
       setTimeout(() => {
         if (accountSection.style.display !== "block" && resetForm.style.display !== "block") {
           loading.style.display = "none";
