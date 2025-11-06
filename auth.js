@@ -9,9 +9,24 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let resendTimerInterval = null;
 
-// بازگشت به اپلیکیشن
-function redirectToApp(email) {
-  const appUrl = `kingo://auth/callback?email=${encodeURIComponent(email)}`;
+// بازگشت به اپلیکیشن + ارسال اطلاعات پروفایل
+async function redirectToApp() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const email = user.email || "";
+  const name = user.user_metadata?.full_name || user.user_metadata?.name || "کاربر";
+  const avatar = user.user_metadata?.avatar_url || "";
+  const provider = user.app_metadata?.provider || "email";
+
+  const params = new URLSearchParams({
+    email: email,
+    name: encodeURIComponent(name),
+    avatar: encodeURIComponent(avatar),
+    provider: provider
+  });
+
+  const appUrl = `kingo://auth/callback?${params.toString()}`;
   window.location.href = appUrl;
 }
 
@@ -40,6 +55,7 @@ function showEmailVerifyWait(email) {
   document.getElementById("register-form").style.display = "none";
   document.getElementById("loading").style.display = "none";
   document.getElementById("login-success").style.display = "none";
+  document.getElementById("magic-link-sent").style.display = "none";
   document.getElementById("email-verify-wait").style.display = "block";
 
   const checkBtn = document.getElementById("check-email-confirmed");
@@ -82,10 +98,10 @@ function showSuccess(email) {
   document.getElementById("register-form").style.display = "none";
   document.getElementById("loading").style.display = "none";
   document.getElementById("email-verify-wait").style.display = "none";
+  document.getElementById("magic-link-sent").style.display = "none";
   document.getElementById("login-success").style.display = "block";
-  document.getElementById("magic-link-sent").style.display = "none";  // پنهان کردن دیالوگ Magic Link
 
-  document.getElementById("open-app").onclick = () => redirectToApp(email);
+  document.getElementById("open-app").onclick = () => redirectToApp();
   document.getElementById("account-details").onclick = () => {
     window.location.href = "https://kingowow.github.io/Kingo-compressor/account";
   };
@@ -95,7 +111,7 @@ function showSuccess(email) {
     document.getElementById("login-form").style.display = "block";
   };
 
-  setTimeout(() => redirectToApp(email), 1000);
+  setTimeout(() => redirectToApp(), 1000);
 }
 
 // نمایش پیام ارسال لینک جادویی
@@ -266,7 +282,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // ✅ listener برای تغییرات وضعیت لاگین (Magic Link, Google, تأیید ایمیل و ...)
+  // listener برای تغییرات وضعیت لاگین (Magic Link, Google, تأیید ایمیل و ...)
   supabase.auth.onAuthStateChange(async (event, session) => {
     if (event === "SIGNED_IN" && session?.user) {
       if (session.user.email_confirmed_at) {
@@ -277,6 +293,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else if (event === "SIGNED_OUT") {
       document.getElementById("login-success").style.display = "none";
       document.getElementById("magic-link-sent").style.display = "none";
+      document.getElementById("email-verify-wait").style.display = "none";
       document.getElementById("login-form").style.display = "block";
     }
   });
