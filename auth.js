@@ -46,7 +46,6 @@ function showEmailVerifyWait(email) {
   const resendBtn = document.getElementById("resend-email");
   const cancelBtn = document.getElementById("cancel-verify");
 
-  // ✅ راه‌حل نهایی: رفرش صفحه برای دریافت وضعیت به‌روز
   checkBtn.onclick = () => {
     window.location.reload();
   };
@@ -62,7 +61,7 @@ function showEmailVerifyWait(email) {
     if (error) {
       alert("خطا در ارسال مجدد: " + error.message);
     } else {
-      alert("✅ ایمیل تأیید مجدد با موفقیت ارسال شد!");
+      alert("ایمیل تأیید مجدد با موفقیت ارسال شد!");
       startResendTimer();
     }
   };
@@ -73,7 +72,6 @@ function showEmailVerifyWait(email) {
     document.getElementById("login-form").style.display = "block";
   };
 
-  // راه‌اندازی تایمر
   if (resendTimerInterval) clearInterval(resendTimerInterval);
   startResendTimer();
 }
@@ -88,7 +86,6 @@ function showSuccess(email) {
 
   document.getElementById("open-app").onclick = () => redirectToApp(email);
   document.getElementById("account-details").onclick = () => {
-    // ✅ مسیر صحیح جزئیات اکانت
     window.location.href = "https://kingowow.github.io/Kingo-compressor/account";
   };
   document.getElementById("change-account").onclick = async () => {
@@ -100,7 +97,21 @@ function showSuccess(email) {
   setTimeout(() => redirectToApp(email), 1000);
 }
 
-// بررسی خودکار وضعیت کاربر — این تابع بعد از هر رفرش اجرا می‌شه
+// نمایش پیام ارسال لینک جادویی
+function showMagicLinkSent(email) {
+  document.getElementById("login-form").style.display = "none";
+  document.getElementById("register-form").style.display = "none";
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("magic-link-sent").style.display = "block";
+
+  document.getElementById("back-to-login").onclick = () => {
+    document.getElementById("magic-link-sent").style.display = "none";
+    document.getElementById("login-form").style.display = "block";
+    document.getElementById("login-email").value = email;
+  };
+}
+
+// بررسی خودکار وضعیت کاربر
 async function checkUser() {
   document.getElementById("loading").style.display = "block";
 
@@ -159,6 +170,33 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("google-login")?.addEventListener("click", handleGoogleLogin);
   document.getElementById("google-login-2")?.addEventListener("click", handleGoogleLogin);
 
+  // ورود بدون رمز (Magic Link)
+  document.getElementById("magic-login")?.addEventListener("click", async () => {
+    const email = document.getElementById("login-email").value.trim();
+    if (!email) {
+      alert("لطفاً ایمیل خود را وارد کنید.");
+      return;
+    }
+
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("login-form").style.display = "none";
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: "https://kingowow.github.io/Kingo-compressor/",
+      },
+    });
+
+    if (error) {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("login-form").style.display = "block";
+      alert("خطا: " + error.message);
+    } else {
+      showMagicLinkSent(email);
+    }
+  });
+
   // Login
   loginForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -179,11 +217,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("loading").style.display = "none";
       loginForm.style.display = "block";
       if (error.message.includes("Invalid login credentials")) {
-        alert("❌ ایمیل یا رمز عبور اشتباه است.");
+        alert("ایمیل یا رمز عبور اشتباه است.");
       } else if (error.message.includes("Email not confirmed")) {
         showEmailVerifyWait(email);
       } else {
-        alert("❌ " + error.message);
+        alert(error.message);
       }
     } else {
       showSuccess(data.user.email);
@@ -225,6 +263,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // این تابع بعد از هر رفرش (مثل کلیک روی «تایید کردم») اجرا می‌شه
   await checkUser();
 });
