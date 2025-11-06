@@ -61,7 +61,7 @@ function showEmailVerifyWait(email) {
     if (error) {
       alert("خطا در ارسال مجدد: " + error.message);
     } else {
-      alert("ایمیل تأیید مجدد با موفقیت ارسال شد!");
+      alert("✅ ایمیل تأیید مجدد با موفقیت ارسال شد!");
       startResendTimer();
     }
   };
@@ -83,6 +83,7 @@ function showSuccess(email) {
   document.getElementById("loading").style.display = "none";
   document.getElementById("email-verify-wait").style.display = "none";
   document.getElementById("login-success").style.display = "block";
+  document.getElementById("magic-link-sent").style.display = "none";  // پنهان کردن دیالوگ Magic Link
 
   document.getElementById("open-app").onclick = () => redirectToApp(email);
   document.getElementById("account-details").onclick = () => {
@@ -102,6 +103,8 @@ function showMagicLinkSent(email) {
   document.getElementById("login-form").style.display = "none";
   document.getElementById("register-form").style.display = "none";
   document.getElementById("loading").style.display = "none";
+  document.getElementById("login-success").style.display = "none";
+  document.getElementById("email-verify-wait").style.display = "none";
   document.getElementById("magic-link-sent").style.display = "block";
 
   document.getElementById("back-to-login").onclick = () => {
@@ -217,11 +220,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("loading").style.display = "none";
       loginForm.style.display = "block";
       if (error.message.includes("Invalid login credentials")) {
-        alert("ایمیل یا رمز عبور اشتباه است.");
+        alert("❌ ایمیل یا رمز عبور اشتباه است.");
       } else if (error.message.includes("Email not confirmed")) {
         showEmailVerifyWait(email);
       } else {
-        alert(error.message);
+        alert("❌ " + error.message);
       }
     } else {
       showSuccess(data.user.email);
@@ -263,5 +266,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // ✅ listener برای تغییرات وضعیت لاگین (Magic Link, Google, تأیید ایمیل و ...)
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === "SIGNED_IN" && session?.user) {
+      if (session.user.email_confirmed_at) {
+        showSuccess(session.user.email);
+      } else {
+        showEmailVerifyWait(session.user.email);
+      }
+    } else if (event === "SIGNED_OUT") {
+      document.getElementById("login-success").style.display = "none";
+      document.getElementById("magic-link-sent").style.display = "none";
+      document.getElementById("login-form").style.display = "block";
+    }
+  });
+
+  // اجرای اولیه
   await checkUser();
 });
