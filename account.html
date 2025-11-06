@@ -7,10 +7,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" />
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
-    /* استایل‌های لودینگ و دیالوگ — دقیقاً مثل index.html */
+    /* استایل‌های لودینگ و دیالوگ */
     #loading,
     #account-section,
-    #not-logged-in {
+    #not-logged-in,
+    #reset-password-form {
       position: absolute;
       top: 50%;
       left: 50%;
@@ -105,11 +106,6 @@
       margin-top: 1rem;
     }
 
-    .danger-button {
-      background-color: #ef4444;
-      color: white;
-    }
-
     .google-badge {
       display: inline-flex;
       align-items: center;
@@ -121,10 +117,33 @@
       font-size: 0.85rem;
       margin-top: 0.5rem;
     }
+
+    /* اسکرول کامل */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .login {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2rem 0;
+    }
+
+    .account-container {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      flex: 1;
+    }
   </style>
 </head>
 <body>
-  <div class="login" style="min-height: 100vh;">
+  <div class="login">
     <img src="assets/img/login-bg.png" alt="bg" class="login__bg" />
 
     <!-- لودینگ -->
@@ -135,13 +154,11 @@
 
     <!-- حساب کاربری -->
     <div id="account-section">
-      <div style="max-width: 420px; margin: 2rem auto;">
+      <div class="account-container">
         <h1 class="login__title" style="text-align: center;">حساب کاربری</h1>
 
-        <!-- آواتار -->
         <div id="avatar-container" style="text-align: center; margin-bottom: 1rem;"></div>
 
-        <!-- اطلاعات -->
         <div class="account-info">
           <p>
             <span><strong>ایمیل:</strong> <span id="user-email">-</span></span>
@@ -157,13 +174,11 @@
           <div id="provider-badge"></div>
         </div>
 
-        <!-- دکمه‌ها -->
         <button id="open-app" class="login__button">بازگشت به اپلیکیشن</button>
 
         <div class="action-buttons">
           <button id="change-password" class="text-button" style="display: none;">تغییر رمز عبور</button>
           <button id="logout-btn" class="text-button">خروج از حساب</button>
-          <button id="delete-account" class="text-button" style="color: #fca5a5;">حذف حساب</button>
         </div>
 
         <div style="margin-top: 1rem; text-align: center;">
@@ -176,6 +191,19 @@
     <div id="not-logged-in">
       <h2>لطفاً ابتدا وارد شوید</h2>
       <a href="/Kingo-compressor/" class="login__button" style="display: inline-block; margin-top: 1rem;">ورود</a>
+    </div>
+
+    <!-- فرم تغییر رمز عبور -->
+    <div id="reset-password-form">
+      <h2>تغییر رمز عبور</h2>
+      <div class="login__inputs" style="margin-top: 1rem;">
+        <div class="login__box">
+          <input type="password" id="new-password" placeholder="رمز جدید (حداقل 6 کاراکتر)" class="login__input" />
+          <i class="ri-lock-2-fill"></i>
+        </div>
+      </div>
+      <button id="submit-new-password" class="login__button">تغییر رمز</button>
+      <button id="cancel-reset" class="text-button" style="margin-top: 1rem;">لغو</button>
     </div>
   </div>
 
@@ -190,6 +218,7 @@
     const loading = document.getElementById("loading");
     const accountSection = document.getElementById("account-section");
     const notLoggedIn = document.getElementById("not-logged-in");
+    const resetForm = document.getElementById("reset-password-form");
 
     // توابع کمکی
     function redirectToApp(email) {
@@ -198,11 +227,7 @@
     }
 
     function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert("کپی شد: " + text);
-      }).catch(() => {
-        alert("خطا در کپی کردن");
-      });
+      navigator.clipboard.writeText(text).then(() => alert("کپی شد: " + text));
     }
 
     function toJalali(date) {
@@ -223,7 +248,6 @@
       loading.style.display = "none";
       accountSection.style.display = "block";
 
-      // آواتار
       if (meta.avatar_url) {
         const avatar = document.createElement("img");
         avatar.src = meta.avatar_url;
@@ -236,21 +260,16 @@
         document.getElementById("avatar-container").appendChild(avatar);
       }
 
-      // اطلاعات
       document.getElementById("user-email").textContent = user.email;
       document.getElementById("user-id").textContent = user.id;
       document.getElementById("created-at").textContent = toJalali(user.created_at);
       document.getElementById("last-signin").textContent = user.last_sign_in_at ? toJalali(user.last_sign_in_at) : "نامشخص";
 
-      // وضعیت ایمیل
       const emailStatus = document.getElementById("email-status");
-      if (user.email_confirmed_at) {
-        emailStatus.innerHTML = '<i class="ri-check-line" style="color:#4ade80;"></i> تأیید شده';
-      } else {
-        emailStatus.innerHTML = '<i class="ri-close-line" style="color:#f87171;"></i> تأیید نشده';
-      }
+      emailStatus.innerHTML = user.email_confirmed_at
+        ? '<i class="ri-check-line" style="color:#4ade80;"></i> تأیید شده'
+        : '<i class="ri-close-line" style="color:#f87171;"></i> تأیید نشده';
 
-      // نوع ورود
       const badge = document.getElementById("provider-badge");
       if (provider === "google") {
         badge.innerHTML = `<div class="google-badge"><i class="ri-google-fill"></i> ورود با گوگل</div>`;
@@ -259,54 +278,81 @@
         document.getElementById("change-password").style.display = "block";
       }
 
-      // کپی
       document.querySelectorAll(".copy-btn").forEach(btn => {
         btn.onclick = () => {
-          const type = btn.dataset.copy;
-          const text = type === "email" ? user.email : user.id;
+          const text = btn.dataset.copy === "email" ? user.email : user.id;
           copyToClipboard(text);
         };
       });
 
-      // دکمه‌ها
       document.getElementById("open-app").onclick = () => redirectToApp(user.email);
 
       document.getElementById("change-password").onclick = () => {
-        const email = prompt("ایمیل خود را وارد کنید:", user.email);
-        if (email && confirm("لینک تغییر رمز به ایمیل ارسال شود؟")) {
+        const email = prompt("ایمیل خود را تأیید کنید:", user.email);
+        if (email === user.email) {
           supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: "https://kingowow.github.io/Kingo-compressor/"
-          }).then(() => alert("لینک ارسال شد!")).catch(err => alert("خطا: " + err.message));
+            redirectTo: window.location.href
+          }).then(() => alert("لینک تغییر رمز به ایمیل ارسال شد!"))
+          .catch(err => alert("خطا: " + err.message));
         }
       };
 
       document.getElementById("logout-btn").onclick = () => {
         if (confirm("از خروج مطمئن هستید؟")) {
-          supabase.auth.signOut().then(() => {
-            window.location.href = "/Kingo-compressor/";
-          });
+          supabase.auth.signOut().then(() => window.location.href = "/Kingo-compressor/");
         }
       };
+    }
 
-      document.getElementById("delete-account").onclick = () => {
-        if (!confirm("هشدار: این عملیات قابل بازگشت نیست!\nآیا واقعاً می‌خواهید حساب خود را حذف کنید؟")) return;
-        if (!confirm("آخرین تأیید: تمام داده‌ها حذف می‌شوند. ادامه؟")) return;
-        alert("حذف حساب فقط از طریق پنل Supabase امکان‌پذیر است.\nشناسه کاربر: " + user.id);
-      };
+    // فرم تغییر رمز
+    document.getElementById("submit-new-password").onclick = async () => {
+      const password = document.getElementById("new-password").value.trim();
+      if (password.length < 6) {
+        alert("رمز عبور باید حداقل 6 کاراکتر باشد.");
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) {
+        alert("خطا: " + error.message);
+      } else {
+        alert("رمز عبور با موفقیت تغییر کرد!");
+        resetForm.style.display = "none";
+        accountSection.style.display = "block";
+      }
+    };
+
+    document.getElementById("cancel-reset").onclick = () => {
+      resetForm.style.display = "none";
+      accountSection.style.display = "block";
+    };
+
+    // چک کردن URL برای #access_token (بعد از کلیک روی لینک ایمیل)
+    async function checkForPasswordReset() {
+      if (window.location.hash.includes("access_token")) {
+        resetForm.style.display = "block";
+        accountSection.style.display = "none";
+        loading.style.display = "none";
+        return true;
+      }
+      return false;
     }
 
     // اجرای اصلی
     async function initAuth() {
       loading.style.display = "block";
 
-      // 1. چک کردن وضعیت فعلی
-      const { data: { user }, error } = await supabase.auth.getUser();
+      // 1. چک کردن توکن تغییر رمز در URL
+      if (await checkForPasswordReset()) return;
+
+      // 2. چک کردن کاربر
+      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         showUser(user);
         return;
       }
 
-      // 2. اگر کاربر لاگین نیست، منتظر تغییر وضعیت باش
+      // 3. منتظر تغییر وضعیت
       supabase.auth.onAuthStateChange((event, session) => {
         if (event === "SIGNED_IN" && session?.user) {
           showUser(session.user);
@@ -316,16 +362,14 @@
         }
       });
 
-      // 3. اگر بعد از 2 ثانیه هنوز لاگین نشده
       setTimeout(() => {
-        if (accountSection.style.display !== "block") {
+        if (accountSection.style.display !== "block" && resetForm.style.display !== "block") {
           loading.style.display = "none";
           notLoggedIn.style.display = "block";
         }
       }, 2000);
     }
 
-    // شروع
     initAuth();
   </script>
 </body>
