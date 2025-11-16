@@ -1,6 +1,9 @@
 {
-  "version": "1.1",
-  "title": "به‌روزرسانی جدید Kingo Ping",
+  "version": "1.2",
+  "title": "به‌روزرسانی جدید Kingo compressor",
   "message": "نسخه جدید با بهبودهای عملکرد و قابلیت‌های جدید منتشر شد! لطفاً برنامه را به‌روزرسانی کنید.",
-  "download_url": "https://github.com/kingowow/Kingo-ping/releases/download/v1.1/app.apk"
+  "download_url": "https://example.com/kingo-compressor-v1.2.apk",
+  "force": false,
+  "force_after": "2025-12-01",
+  "min_version": "1.0"
 }
