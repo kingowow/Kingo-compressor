@@ -1,7 +1,7 @@
 {
-  "version": "1.2",
+  "version": "1.0",
   "title": "به‌روزرسانی جدید Kingo compressor",
   "message": "نسخه جدید با بهبودهای عملکرد و قابلیت‌های جدید منتشر شد! لطفاً برنامه را به‌روزرسانی کنید.",
   "download_url": "https://example.com/kingo-v1.2.apk",
-  "force": true
+  "force": false
 }
